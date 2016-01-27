@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 from sqlalchemy import Column, Integer, Float, String, DateTime
-class drink(Base):
+class Drink(Base):
 	"""
 	Common base class for all drinks.
 	A 'unit' is the smallest deliverable unit.
@@ -70,7 +70,7 @@ def choose_to_input():
 			continue
 
 def check_uniqueness(input):
-	for instance in session.query(drink.artNum):
+	for instance in session.query(Drink.artNum):
 		if instance.artNum == input:
 			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
@@ -117,7 +117,7 @@ def add_Products():
 				for i in writeBuffer:
 					print(i)
 				session.add(
-					drink(
+					Drink(
 						artNum = writeBuffer.pop(0),
 						name = writeBuffer.pop(0),
 						bottlesPerUnit = writeBuffer.pop(0),
