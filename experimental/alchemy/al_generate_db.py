@@ -74,8 +74,7 @@ def check_uniqueness(input):
 		if instance.artNum == input:
 			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
-		else:
-			return True
+	return True
 
 def choose_to_accept():
 	while True:
@@ -111,23 +110,23 @@ def add_Products():
 		writeBuffer.append(float(raw_input("Einkaufspreis:		")))
 		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:	")))
 	
-		if choose_to_accept() == False:
-			pass
+		if choose_to_accept() == True:
+			if writeBuffer == []:
+				print("Keine Angaben gefunden. Es wurde nichts gemacht")
+			else:
+				for i in writeBuffer:
+					print(i)
+				session.add(
+					drink(
+						artNum = writeBuffer.pop(0),
+						name = writeBuffer.pop(0),
+						bottlesPerUnit = writeBuffer.pop(0),
+						cratesPerUnit = writeBuffer.pop(0),
+						bottlePfand = writeBuffer.pop(0),
+						unitCost = writeBuffer.pop(0),
+						bottleSurcharge = writeBuffer.pop(0))
+				)
 		else: continue
-
-		if writeBuffer == []:
-			print("Keine Angaben gefunden. Es wurde nichts gemacht")
-		else:
-			session.add(
-				drink(
-					artNum = writeBuffer.pop(0),
-					name = writeBuffer.pop(0),
-					bottlesPerUnit = writeBuffer.pop(0),
-					cratesPerUnit = writeBuffer.pop(0),
-					bottlePfand = writeBuffer.pop(0),
-					unitCost = writeBuffer.pop(0),
-					bottleSurcharge = writeBuffer.pop(0))
-			)
 
 add_Products()
 session.commit()
