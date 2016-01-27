@@ -2,7 +2,7 @@ from __future__ import print_function, division
 from tabulate import tabulate
 
 from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=True) # echo=True to show SQL statements
+engine = create_engine('sqlite:///alchemy.db', echo=True)    # echo=True to show SQL statements
 
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
@@ -23,7 +23,7 @@ class Drink(Base):
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
 	bottlePfand = Column(Float)
-	unitCost = Column(Float) # pro Liefereinheit, also praktisch pro Kasten
+	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
 	bottleSurcharge = Column(Float)
 	
 	def __repr__(self):
@@ -31,7 +31,7 @@ class Drink(Base):
 		table = []
 		for k in sorted(inventory):
 			table.append([self.artNum, self.name, self.get_bottle_price()])
-		return (tabulate(table, headers=["Artikel#","Name", "Preis Flasche"]))
+		return (tabulate(table, headers=["Artikel#", "Name", "Preis Flasche"]))
  	
  	
 	def get_cost_MwSt(self):
@@ -45,7 +45,7 @@ class order(Base):
 	__tablename__ = "tblOrder"
 	
 	OrderID = Column(Integer, primary_key=True)
-	timestamp = Column(DateTime) # how does this one work?
+	timestamp = Column(DateTime)    # how does this one work?
 	note = Column(String)
 	
 
@@ -92,14 +92,14 @@ def choose_to_accept():
 			continue
 
 def add_Products():
-	while choose_to_input() == True:
+	while choose_to_input() is True:
 		writeBuffer = []
 		# check for uniqueness of Article Number:
 		# query database for input
 		# if row exists, error
 		# else continue
 		inputArtNum = int(raw_input("Artikelnummer:		"))
-		if check_uniqueness(inputArtNum) == True:
+		if check_uniqueness(inputArtNum) is True:
 			writeBuffer.append(inputArtNum)
 		else: continue
 	
@@ -110,7 +110,7 @@ def add_Products():
 		writeBuffer.append(float(raw_input("Einkaufspreis:		")))
 		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:	")))
 	
-		if choose_to_accept() == True:
+		if choose_to_accept() is True:
 			if writeBuffer == []:
 				print("Keine Angaben gefunden. Es wurde nichts gemacht")
 			else:
