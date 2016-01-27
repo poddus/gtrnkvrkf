@@ -32,8 +32,7 @@ class Drink(Base):
 		for k in sorted(inventory):    # inventory variable needs to be changed to a database query
 			table.append([self.artNum, self.name, self.get_bottle_price()])
 		return (tabulate(table, headers=["Artikel#", "Name", "Preis Flasche"]))
- 	
- 	
+	
 	def get_cost_MwSt(self):
 		return self.unitCost*1.19
 	
@@ -101,7 +100,8 @@ def add_Products():
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_uniqueness(inputArtNum) is True:
 			writeBuffer.append(inputArtNum)
-		else: continue
+		else:
+			continue
 	
 		writeBuffer.append(raw_input("Artikel Name:		"))
 		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
