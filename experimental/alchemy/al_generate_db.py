@@ -29,7 +29,7 @@ class Drink(Base):
 	def __repr__(self):
 		# print drinks as tabulate table
 		table = []
-		for k in sorted(inventory):
+		for k in sorted(inventory):    # inventory variable needs to be changed to a database query
 			table.append([self.artNum, self.name, self.get_bottle_price()])
 		return (tabulate(table, headers=["Artikel#", "Name", "Preis Flasche"]))
  	
