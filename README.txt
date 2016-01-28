@@ -1,4 +1,12 @@
-'''
+The main program currently resides in the "alchemy" folder.
+
+Dependencies:
+tabulate
+sqlite3
+sqlalchemy
+
+Pseudo Code Verkauf:
+
 1 start program
 	open database
 	start database session
@@ -36,4 +44,3 @@
 
 14 write transaction to database, update inventory
 15 return to 2
-'''
