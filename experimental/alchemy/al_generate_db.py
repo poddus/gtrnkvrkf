@@ -2,7 +2,7 @@ from __future__ import print_function, division
 from tabulate import tabulate
 
 from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=True)    # echo=True to show SQL statements
+engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
 
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
@@ -114,8 +114,6 @@ def add_Products():
 			if writeBuffer == []:
 				print("Keine Angaben gefunden. Es wurde nichts gemacht")
 			else:
-				for i in writeBuffer:
-					print(i)
 				session.add(
 					Drink(
 						artNum = writeBuffer.pop(0),
