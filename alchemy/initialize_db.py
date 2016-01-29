@@ -22,9 +22,6 @@ class Product(Base):
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
 	bottlePfand = Column(Float)
-#	the following have been moved to StockTake
-# 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
-# 	bottleSurcharge = Column(Float)
 
 	def __repr__(self):
 		# print products as tabulate table

@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 from tabulate import tabulate
 
-from initialize_db import Product, Order, StockTake
+from initialize_db import Product, Order, StockTake    # not importing "Detail" classes, necessary?
 from add_products import write_products
 
 def what_do():
