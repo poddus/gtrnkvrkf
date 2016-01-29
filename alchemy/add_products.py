@@ -21,7 +21,7 @@ def choose_to_input():
 			continue
 
 def check_uniqueness(input):
-	for instance in session.query(Drink.artNum):
+	for instance in session.query(Product.artNum):
 		if instance.artNum == input:
 			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
@@ -67,7 +67,7 @@ def add_products():
 				print("Keine Angaben gefunden. Es wurde nichts gemacht")
 			else:
 				session.add(
-					Drink(
+					Product(
 						artNum = writeBuffer.pop(0),
 						name = writeBuffer.pop(0),
 						bottlesPerUnit = writeBuffer.pop(0),

@@ -5,9 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 from sqlalchemy import Column, Integer, Float, String, DateTime
-class Drink(Base):
+class Product(Base):
 	"""
-	Common base class for all drinks.
+	Common base class for all products.
 	A 'unit' is the smallest deliverable unit.
 	'cost' is what we pay.
 	'price' is what the customer pays.
@@ -24,7 +24,7 @@ class Drink(Base):
 	bottleSurcharge = Column(Float)
 
 	def __repr__(self):
-		# print drinks as tabulate table
+		# print products as tabulate table
 		table = []
 		for k in sorted(inventory):    # inventory variable needs to be changed to a database query
 			table.append([self.artNum, self.name, self.get_bottle_price()])
