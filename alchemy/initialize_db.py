@@ -4,7 +4,8 @@ engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to sho
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
-from sqlalchemy import Column, Integer, Float, String, DateTime
+from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
+from sqlalchemy.orm import relationship
 class Product(Base):
 	"""
 	Common base class for all products.
@@ -20,8 +21,9 @@ class Product(Base):
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
 	bottlePfand = Column(Float)
-	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
-	bottleSurcharge = Column(Float)
+#	the following have been moved to StockTake
+# 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
+# 	bottleSurcharge = Column(Float)
 
 	def __repr__(self):
 		# print products as tabulate table
@@ -36,6 +38,8 @@ class Product(Base):
 	def get_bottle_price(self):
 		return round(((self.get_cost_MwSt() / self.bottlesPerUnit) + 0.1), 2)
 
+"""----------------------------------------------------------------------------------------------"""
+
 class Order(Base):
 
 	__tablename__ = "tblOrder"
@@ -43,6 +47,62 @@ class Order(Base):
 	OrderID = Column(Integer, primary_key=True)
 	timestamp = Column(DateTime)    # how does this one work?
 	note = Column(String)
+	
+	def get_total(self):
+		# add up subtotals from OrderDetail.get_subtotals(), return a nice table
+		pass
+	
+	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
+	orderdetail = relationship("OrderDetail", back_populates="order")
+
+class OrderDetail(Base):
+	
+	__tablename__ = "tblOrderDetail"
+	
+	OrderDetailID = Column(Integer, primary_key=True)
+	OrderID = Column(Integer, ForeignKey('tblOrder.OrderID'))
+	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
+	quantity = Column(Integer)
+	pfandCrates = Column(Float)
+	pfandBottles = Column(Integer)
+	
+	def get_subtotals(self, OrderID):
+		# query tblOrderDetail for all entries with given OrderID
+		# query
+		pass
+	
+	order = relationship("Order", back_populates="orderdetail")
+
+"""----------------------------------------------------------------------------------------------"""
+
+class StockTake(Base):
+	
+	__tablename__ = "tblStockTake"
+	StockTakeID = Column(Integer, primary_key=True)
+	timestamp = Column(DateTime)    # how does this one work?
+	note = Column(String)
+	
+	stocktakedetail = relationship("StockTakeDetail", back_populates="stocktake")
+	
+	def get_inventory_value(self, StockTake):
+		# query tblOrderDetail for all entries with given OrderID
+		# query
+		pass
+
+class StockTakeDetail(Base):
+	
+	__tablename__ = "tblStockTakeDetail"
+	
+	StockTakeDetailID = Column(Integer, primary_key=True)
+	StockTakeID = Column(Integer, ForeignKey('tblStockTake.StockTakeID'))
+	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
+	quantity = Column(Integer)
+	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
+	bottleSurcharge = Column(Float)
+	pfandCrates = Column(Float)
+	pfandBottles = Column(Integer)
+
+	stocktake = relationship("Order", back_populates="stocktakedetail")
 
 
 Base.metadata.create_all(engine)

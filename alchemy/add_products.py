@@ -59,8 +59,10 @@ def add_products():
 		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
 		writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
 		writeBuffer.append(float(raw_input("Flaschenpfand:		")))
-		writeBuffer.append(float(raw_input("Einkaufspreis:		")))
-		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:	")))
+		
+#		the following have been moved to StockTake
+# 		writeBuffer.append(float(raw_input("Einkaufspreis:		")))
+# 		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:	")))
 
 		if choose_to_accept() is True:
 			if writeBuffer == []:
@@ -73,10 +75,11 @@ def add_products():
 						bottlesPerUnit = writeBuffer.pop(0),
 						cratesPerUnit = writeBuffer.pop(0),
 						bottlePfand = writeBuffer.pop(0),
-						unitCost = writeBuffer.pop(0),
-						bottleSurcharge = writeBuffer.pop(0))
-				)
-		else: continue
+# 						unitCost = writeBuffer.pop(0),
+# 						bottleSurcharge = writeBuffer.pop(0))
+				))
+		else:
+			continue
 
 def write_products():
 	add_products()
