@@ -6,6 +6,7 @@ Base = declarative_base()
 
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
+
 class Product(Base):
 	"""
 	Common base class for all products.
@@ -53,7 +54,7 @@ class Order(Base):
 		pass
 	
 	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
-	orderdetail = relationship("OrderDetail", back_populates="order")
+	orderdetail = relationship("OrderDetail")
 
 class OrderDetail(Base):
 	
@@ -70,8 +71,6 @@ class OrderDetail(Base):
 		# query tblOrderDetail for all entries with given OrderID
 		# query
 		pass
-	
-	order = relationship("Order", back_populates="orderdetail")
 
 """----------------------------------------------------------------------------------------------"""
 
@@ -82,7 +81,7 @@ class StockTake(Base):
 	timestamp = Column(DateTime)    # how does this one work?
 	note = Column(String)
 	
-	stocktakedetail = relationship("StockTakeDetail", back_populates="stocktake")
+	stocktakedetail = relationship("StockTakeDetail")
 	
 	def get_inventory_value(self, StockTake):
 		# query tblOrderDetail for all entries with given OrderID
@@ -101,8 +100,5 @@ class StockTakeDetail(Base):
 	bottleSurcharge = Column(Float)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
-
-	stocktake = relationship("Order", back_populates="stocktakedetail")
-
 
 Base.metadata.create_all(engine)

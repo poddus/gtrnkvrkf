@@ -4,6 +4,8 @@ engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to sho
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
+from initialize_db import Product
+
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
