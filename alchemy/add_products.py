@@ -25,6 +25,7 @@ def choose_to_input():
 def check_uniqueness(input):
 	for instance in session.query(Product.artNum):
 		if instance.artNum == input:
+			# implement editing of entries!
 			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
 	return True
