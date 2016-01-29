@@ -4,6 +4,8 @@ engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to sho
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
+from initialize_db import Product
+
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -21,7 +23,7 @@ def choose_to_input():
 			continue
 
 def check_uniqueness(input):
-	for instance in session.query(Drink.artNum):
+	for instance in session.query(Product.artNum):
 		if instance.artNum == input:
 			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
@@ -59,24 +61,22 @@ def add_products():
 		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
 		writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
 		writeBuffer.append(float(raw_input("Flaschenpfand:		")))
-		writeBuffer.append(float(raw_input("Einkaufspreis:		")))
-		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:	")))
 
 		if choose_to_accept() is True:
 			if writeBuffer == []:
 				print("Keine Angaben gefunden. Es wurde nichts gemacht")
 			else:
 				session.add(
-					Drink(
+					Product(
 						artNum = writeBuffer.pop(0),
 						name = writeBuffer.pop(0),
 						bottlesPerUnit = writeBuffer.pop(0),
 						cratesPerUnit = writeBuffer.pop(0),
 						bottlePfand = writeBuffer.pop(0),
-						unitCost = writeBuffer.pop(0),
-						bottleSurcharge = writeBuffer.pop(0))
+					)
 				)
-		else: continue
+		else:
+			continue
 
 def write_products():
 	add_products()
