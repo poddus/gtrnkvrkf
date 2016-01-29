@@ -7,10 +7,10 @@ from add_products import write_products
 def what_do():
 	print("Was moechten Sie machen? Bitte eine der folgenden Nummern eingeben:\n")
 	print("0	Abbrechen")
-	print("1	Um neue Produkte zum Sortiment hinzuzufuegen")
-	print("2	not implemented")
-	print("3	not implemented")
-	print("")
+	print("1	Verkauf")
+	print("2	Neue Lieferung, Inventar Pruefen")
+	print("3	Um neue Produkte zum Sortiment hinzuzufuegen")
+	print("4	Hilfe")
 
 	choice = None
 	while choice == None:
@@ -22,7 +22,16 @@ def what_do():
 	if choice == 0:
 		return 0
 	elif choice == 1:
+		# link sale.py
+		print("not implemented")
+	elif choice == 2:
+		# link stock_take.py
+		print("not implemented")
+	elif choice == 3:
 		write_products()
+	elif choice == 4:
+		# link help.py
+		print("not implemented")
 	else:
 		print("not implemented")
 
