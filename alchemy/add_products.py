@@ -12,12 +12,13 @@ session = Session()
 
 def choose_to_input():
 	while True:
+		print("")
 		print("Neues Product eingeben? j/n:")
 		choice = raw_input(">")
-		if choice == "n":
-			return False
-		elif choice == "j":
+		if choice == "j":
 			return True
+		elif choice == "n":
+			return False
 		else:
 			print("Bitte entweder 'j' oder 'n' eingeben")
 			continue
@@ -25,8 +26,6 @@ def choose_to_input():
 def check_uniqueness(input):
 	for instance in session.query(Product.artNum):
 		if instance.artNum == input:
-			# implement editing of entries!
-			print("Artikel existiert schon in der Datenbank! Bitte versuchen Sie es erneut.\n\n")
 			return False
 	return True
 
@@ -35,47 +34,83 @@ def choose_to_accept():
 		# print confirmation before adding to database
 		print("Bitte ueberpruefen Sie ihre Angaben. Bestaetigen? j/n")
 		choice = raw_input(">")
-		if choice == "n":
-			print("Angaben verworfen!\n\n")
-			return False
-		elif choice == "j":
+		if choice == "j":
 			print("Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.")
 			return True
+		elif choice == "n":
+			print("Angaben verworfen!\n\n")
+			return False
 		else:
 			print("Bitte entweder 'j' oder 'n' eingeben")
 			continue
 
+def choose_to_edit_existing():
+	while True:
+		print("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern? j/n")
+		choice = raw_input(">")
+		if choice == "j":
+			return True
+		elif choice == "n":
+			return False
+		else:
+			print("Bitte entweder 'j' oder 'n' eingeben")
+			continue
+
+def edit_write_buffer(inputArtNum):
+	writeBuffer = []
+	writeBuffer.append(inputArtNum)
+	writeBuffer.append(raw_input("Artikel Name:		"))
+	writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
+	writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
+	writeBuffer.append(float(raw_input("Flaschenpfand:		")))
+	return writeBuffer
+
+def create_new_product(inputArtNum):
+	writeBuffer = []
+	writeBuffer = edit_write_buffer(inputArtNum)
+	if choose_to_accept() is True:
+		session.add(
+			Product(
+				artNum = writeBuffer.pop(0),
+				name = writeBuffer.pop(0),
+				bottlesPerUnit = writeBuffer.pop(0),
+				cratesPerUnit = writeBuffer.pop(0),
+				bottlePfand = writeBuffer.pop(0),
+			)
+		)
+	else:
+		pass
+
+def edit_existing(inputArtNum):
+	# pass db-query to variable, edit variable, session.add(variable)
+	existingProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
+	print(existingProduct)
+	writeBuffer = edit_write_buffer(inputArtNum)
+	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
+	
+	if choose_to_accept() is True:
+		# This doesn't work
+		# TypeError: 'builtin_function_or_method' object has no attribute '__getitem__'
+		existingProduct.name = writeBuffer.pop[0]
+		existingProduct.bottlesPerUnit = writeBuffer.pop[0]
+		existingProduct.cratesPerUnit = writeBuffer.pop[0]
+		existingProduct.bottlePfand = writeBuffer.pop[0]
+	else:
+		pass
+
 def add_products():
 	while choose_to_input() is True:
-		writeBuffer = []
 		# check for uniqueness of Article Number:
 		# query database for input
 		# if row exists, error
 		# else continue
+# 		writeBuffer = []
+		
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_uniqueness(inputArtNum) is True:
-			writeBuffer.append(inputArtNum)
-		else:
-			continue
-
-		writeBuffer.append(raw_input("Artikel Name:		"))
-		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
-		writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
-		writeBuffer.append(float(raw_input("Flaschenpfand:		")))
-
-		if choose_to_accept() is True:
-			if writeBuffer == []:
-				print("Keine Angaben gefunden. Es wurde nichts gemacht")
-			else:
-				session.add(
-					Product(
-						artNum = writeBuffer.pop(0),
-						name = writeBuffer.pop(0),
-						bottlesPerUnit = writeBuffer.pop(0),
-						cratesPerUnit = writeBuffer.pop(0),
-						bottlePfand = writeBuffer.pop(0),
-					)
-				)
+			create_new_product(inputArtNum)
+		elif choose_to_edit_existing() is True:
+			edit_existing(inputArtNum)
 		else:
 			continue
 
