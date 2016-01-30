@@ -111,11 +111,6 @@ def edit_existing(inputArtNum):
 
 def add_products():
 	while choose_to_input() is True:
-		# check for uniqueness of Article Number:
-		# query database for input
-		# if row exists, error
-		# else continue
-# 		writeBuffer = []
 		
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_uniqueness(inputArtNum) is True:
