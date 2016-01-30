@@ -59,10 +59,22 @@ def choose_to_edit_existing():
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
 	writeBuffer.append(inputArtNum)
-	writeBuffer.append(raw_input("Artikel Name:		"))
-	writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
-	writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
-	writeBuffer.append(float(raw_input("Flaschenpfand:		")))
+	writeBuffer.append(raw_input("\nArtikel Name:		"))
+	try:
+		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
+	except TypeError:
+		print("Bitte nur ganze Zahlen eingeben!")
+	
+	try:
+		writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
+	except TypeError:
+		print("Bitte nur ganze Zahlen eingeben!")
+	
+	try:
+		writeBuffer.append(float(raw_input("Flaschenpfand:		")))
+	except TypeError:
+		print("Bitte nur Dezimalzahlen eingeben!")
+	
 	return writeBuffer
 
 def create_new_product(inputArtNum):
@@ -82,19 +94,18 @@ def create_new_product(inputArtNum):
 		pass
 
 def edit_existing(inputArtNum):
-	# pass db-query to variable, edit variable, session.add(variable)
 	existingProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
 	print(existingProduct)
+	print("")
+	print("Achtung: Alle Eingaben muessen neu ausgefuellt werden\n")
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
 	
 	if choose_to_accept() is True:
-		# This doesn't work
-		# TypeError: 'builtin_function_or_method' object has no attribute '__getitem__'
-		existingProduct.name = writeBuffer.pop[0]
-		existingProduct.bottlesPerUnit = writeBuffer.pop[0]
-		existingProduct.cratesPerUnit = writeBuffer.pop[0]
-		existingProduct.bottlePfand = writeBuffer.pop[0]
+		existingProduct.name = writeBuffer.pop(0)
+		existingProduct.bottlesPerUnit = writeBuffer.pop(0)
+		existingProduct.cratesPerUnit = writeBuffer.pop(0)
+		existingProduct.bottlePfand = writeBuffer.pop(0)
 	else:
 		pass
 
