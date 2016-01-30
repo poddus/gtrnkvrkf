@@ -7,6 +7,8 @@ Base = declarative_base()
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
+from tabulate import tabulate
+
 class Product(Base):
 	"""
 	Common base class for all products.
@@ -26,15 +28,15 @@ class Product(Base):
 	def __repr__(self):
 		# print products as tabulate table
 		table = []
-		for k in sorted(inventory):    # inventory variable needs to be changed to a database query
-			table.append([self.artNum, self.name, self.get_bottle_price()])
-		return (tabulate(table, headers=["Artikel#", "Name", "Preis Flasche"]))
+		table.append([self.artNum, self.name, self.bottlesPerUnit, self.cratesPerUnit, self.bottlePfand])
+		return (tabulate(table, headers=["Artikel#", "Name", "Fl pro E", "Ka pro E", "Pfand pro Fl"]))
 
-	def get_cost_MwSt(self):
-		return self.unitCost*1.19
-
-	def get_bottle_price(self):
-		return round(((self.get_cost_MwSt() / self.bottlesPerUnit) + 0.1), 2)
+# unit cost no longer stored in Product class/tbl. define function anyway (db-query StockTake) for convenience?
+# 	def get_cost_MwSt(self):
+# 		return self.unitCost*1.19
+# 
+# 	def get_bottle_price(self):
+# 		return round(((self.get_cost_MwSt() / self.bottlesPerUnit) + 0.1), 2)
 
 """----------------------------------------------------------------------------------------------"""
 
