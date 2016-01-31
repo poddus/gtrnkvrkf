@@ -13,8 +13,6 @@ class Product(Base):
 	"""
 	Common base class for all products.
 	A 'unit' is the smallest deliverable unit.
-	'cost' is what we pay.
-	'price' is what the customer pays.
 	"""
 
 	__tablename__ = "tblProducts"
@@ -83,11 +81,19 @@ class StockTake(Base):
 	stocktakedetail = relationship("StockTakeDetail")
 	
 	def get_inventory_value(self, StockTake):
-		# query tblOrderDetail for all entries with given OrderID
-		# query
+		# no need to query, use relationship! comment below is dumb
+		# stocktake = query tblOrderDetail for all entries with given OrderID
+		# should value be what we payed for it or what we get when selling?
+		# total = 0
+		# for i in stocktake:
+		#     total += stocktake.get_unit_price()
 		pass
 
 class StockTakeDetail(Base):
+	"""
+	'cost' is what we pay.
+	'price' is what the customer pays.
+	"""
 	
 	__tablename__ = "tblStockTakeDetail"
 	
@@ -99,5 +105,10 @@ class StockTakeDetail(Base):
 	bottleSurcharge = Column(Float)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
+	
+	product = relationship("Product")
+	
+	def get_unit_price(self):
+		return (self.unitCost + (self.bottleSurcharge * self.product.bottlesPerUnit))
 
 Base.metadata.create_all(engine)

@@ -8,8 +8,8 @@ def what_do():
 	print("Was moechten Sie machen? Bitte eine der folgenden Nummern eingeben:\n")
 	print("0	Abbrechen")
 	print("1	Verkauf")
-	print("2	Neue Lieferung, Inventar Pruefen")
-	print("3	Um neue Produkte zum Sortiment hinzuzufuegen")
+	print("2	Neue Lieferung / Inventar Pruefen")
+	print("3	Sortiment bearbeiten")
 	print("4	Hilfe")
 
 	choice = None

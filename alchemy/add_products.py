@@ -97,6 +97,7 @@ def edit_existing(inputArtNum):
 	existingProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
 	print(existingProduct)
 	print("")
+	# is there a way to retain existing values?
 	print("Achtung: Alle Eingaben muessen neu ausgefuellt werden\n")
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
