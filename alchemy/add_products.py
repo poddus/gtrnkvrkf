@@ -31,7 +31,6 @@ def check_uniqueness(input):
 
 def choose_to_accept():
 	while True:
-		# print confirmation before adding to database
 		print("Bitte ueberpruefen Sie ihre Angaben. Bestaetigen? j/n")
 		choice = raw_input(">")
 		if choice == "j":
@@ -78,7 +77,6 @@ def edit_write_buffer(inputArtNum):
 	return writeBuffer
 
 def create_new_product(inputArtNum):
-	writeBuffer = []
 	writeBuffer = edit_write_buffer(inputArtNum)
 	if choose_to_accept() is True:
 		session.add(
@@ -97,7 +95,7 @@ def edit_existing(inputArtNum):
 	existingProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
 	print(existingProduct)
 	print("")
-	# is there a way to retain existing values?
+	# is there a better way to retain existing values?
 	print("Achtung: Alle Eingaben muessen neu ausgefuellt werden\n")
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?

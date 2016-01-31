@@ -17,7 +17,7 @@ class Product(Base):
 
 	__tablename__ = "tblProducts"
 
-	artNum = Column(Integer, primary_key=True)
+	artNum = Column(Integer, primary_key=True, autoincrement=False)
 	name = Column(String(32))
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
@@ -81,13 +81,12 @@ class StockTake(Base):
 	stocktakedetail = relationship("StockTakeDetail")
 	
 	def get_inventory_value(self, StockTake):
-		# no need to query, use relationship! comment below is dumb
-		# stocktake = query tblOrderDetail for all entries with given OrderID
 		# should value be what we payed for it or what we get when selling?
-		# total = 0
-		# for i in stocktake:
-		#     total += stocktake.get_unit_price()
-		pass
+		total = 0
+		details = self.stocktakedetail
+		
+		for instances in details:
+			total += details.get_unit_price()
 
 class StockTakeDetail(Base):
 	"""
