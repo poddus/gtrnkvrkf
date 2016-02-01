@@ -1,38 +1,5 @@
-from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-
+from __main__ import *
 from initialize_db import Product
-
-from sqlalchemy.orm import sessionmaker
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# this same function is defined in stock_take
-def yes_no(question, yes="", no=""):
-	while True:
-		print("")
-		print(question + " j/n:")
-		choice = raw_input(">")
-		if choice == "j":
-			if yes != "":
-				print(yes)
-			return True
-		elif choice == "n":
-			if no != "":
-				print(no)
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
-
-def check_uniqueness(input):
-	for instance in session.query(Product.artNum):
-		if instance.artNum == input:
-			return False
-	return True
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
@@ -100,10 +67,11 @@ def add_products():
 		while True:
 			try:
 				inputArtNum = int(raw_input("Artikelnummer:		"))
+				break
 			except TypeError:
 				print("Bitte nur Ziffern eingeben!")
 		
-		if check_uniqueness(inputArtNum) is True:
+		if check_exists(inputArtNum) is False:    # if unique
 			create_new_product(inputArtNum)
 		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern?") is True:
 			edit_existing(inputArtNum)

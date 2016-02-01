@@ -1,13 +1,7 @@
-from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
-from tabulate import tabulate
+from __main__ import *
 
 class Product(Base):
 	"""
@@ -43,7 +37,7 @@ class Order(Base):
 	__tablename__ = "tblOrder"
 
 	orderID = Column(Integer, primary_key=True)
-	timestamp = Column(DateTime)    # how does this one work?
+	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
 	def get_total(self):
@@ -58,14 +52,14 @@ class OrderDetail(Base):
 	__tablename__ = "tblOrderDetail"
 	
 	orderDetailID = Column(Integer, primary_key=True)
-	orderID = Column(Integer, ForeignKey('tblOrder.OrderID'))
+	orderID = Column(Integer, ForeignKey('tblOrder.orderID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
 	
-	def get_subtotals(self, OrderID):
-		# query tblOrderDetail for all entries with given OrderID
+	def get_subtotals(self, orderID):
+		# query tblOrderDetail for all entries with given orderID
 		# query
 		pass
 
@@ -75,7 +69,7 @@ class StockTake(Base):
 	
 	__tablename__ = "tblStockTake"
 	stockTakeID = Column(Integer, primary_key=True)
-	timestamp = Column(DateTime)    # how does this one work?
+	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
 	stocktakedetail = relationship("StockTakeDetail")
@@ -97,7 +91,7 @@ class StockTakeDetail(Base):
 	__tablename__ = "tblStockTakeDetail"
 	
 	stockTakeDetailID = Column(Integer, primary_key=True)
-	stockTakeID = Column(Integer, ForeignKey('tblStockTake.StockTakeID'))
+	stockTakeID = Column(Integer, ForeignKey('tblStockTake.stockTakeID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
