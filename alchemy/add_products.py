@@ -10,10 +10,11 @@ from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# this same function is defined in stock_take
 def yes_no(question, yes="", no=""):
 	while True:
 		print("")
-		print(question + "? j/n:")
+		print(question + " j/n:")
 		choice = raw_input(">")
 		if choice == "j":
 			if yes != "":
@@ -57,7 +58,7 @@ def edit_write_buffer(inputArtNum):
 def create_new_product(inputArtNum):
 	writeBuffer = edit_write_buffer(inputArtNum)
 	if yes_no(
-		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 		"Angaben verworfen!\n\n"
 		) is True:
@@ -83,7 +84,7 @@ def edit_existing(inputArtNum):
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
 	
 	if yes_no(
-		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 		"Angaben verworfen!\n\n"
 		) is True:
@@ -95,12 +96,16 @@ def edit_existing(inputArtNum):
 		pass
 
 def add_products():
-	while yes_no("Neues Product eingeben") is True:
+	while yes_no("Neues Product eingeben?") is True:
+		while True:
+			try:
+				inputArtNum = int(raw_input("Artikelnummer:		"))
+			except TypeError:
+				print("Bitte nur Ziffern eingeben!")
 		
-		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_uniqueness(inputArtNum) is True:
 			create_new_product(inputArtNum)
-		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern") is True:
+		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern?") is True:
 			edit_existing(inputArtNum)
 		else:
 			continue

@@ -42,7 +42,7 @@ class Order(Base):
 
 	__tablename__ = "tblOrder"
 
-	OrderID = Column(Integer, primary_key=True)
+	orderID = Column(Integer, primary_key=True)
 	timestamp = Column(DateTime)    # how does this one work?
 	note = Column(String)
 	
@@ -57,8 +57,8 @@ class OrderDetail(Base):
 	
 	__tablename__ = "tblOrderDetail"
 	
-	OrderDetailID = Column(Integer, primary_key=True)
-	OrderID = Column(Integer, ForeignKey('tblOrder.OrderID'))
+	orderDetailID = Column(Integer, primary_key=True)
+	orderID = Column(Integer, ForeignKey('tblOrder.OrderID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	pfandCrates = Column(Float)
@@ -74,7 +74,7 @@ class OrderDetail(Base):
 class StockTake(Base):
 	
 	__tablename__ = "tblStockTake"
-	StockTakeID = Column(Integer, primary_key=True)
+	stockTakeID = Column(Integer, primary_key=True)
 	timestamp = Column(DateTime)    # how does this one work?
 	note = Column(String)
 	
@@ -96,8 +96,8 @@ class StockTakeDetail(Base):
 	
 	__tablename__ = "tblStockTakeDetail"
 	
-	StockTakeDetailID = Column(Integer, primary_key=True)
-	StockTakeID = Column(Integer, ForeignKey('tblStockTake.StockTakeID'))
+	stockTakeDetailID = Column(Integer, primary_key=True)
+	stockTakeID = Column(Integer, ForeignKey('tblStockTake.StockTakeID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten

@@ -44,10 +44,11 @@ session = Session()
 # 	request change, return to input products, but retain order information
 # 		if changes are made, overwrite previous choice, else keep choices
 
+# this same function is defined in add_products
 def yes_no(question, yes="", no=""):
 	while True:
 		print("")
-		print(question + "? j/n:")
+		print(question + " j/n:")
 		choice = raw_input(">")
 		if choice == "j":
 			if yes != "":
@@ -69,68 +70,99 @@ def check_exists(input):
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
-	# TODO: how to add most recent StockTakeID? foreign key
+	currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).one()
+	
+	# add most recent StockTakeID foreign key
+	writeBuffer.append(session.query(StockTake).order_by(StockTake.StockTakeID.desc()).first())
 	writeBuffer.append(inputArtNum)
-	try:
-		quantity = int(raw_input("Anzahl der Liefereinheiten:	")))
-		# pfandCrates = quantity * number of crates per unit
-		pfandCrates = quantity * session.query(Product.cratesPerUnit).filter(Product.artNum == inputArtNum)
-		quantity *= session.query(Product.bottlesPerUnit).filter(Product.artNum == inputArtNum)
-		
+	
+	while True:
+		try:
+			quantity = int(raw_input("Anzahl der Liefereinheiten:	")))
+		except TypeError:
+			print("Bitte nur ganze Zahlen eingeben!")
+	
+	# convert unit quantity to bottle quantity
+	quantity *= currentProduct.bottlesPerUnit
+	
+	pfandcrates = quantity * currentProduct.cratesPerUnit
+	
+	while True:
 		try:
 			quantity += int(raw_input("Zusaetzliche volle Flaschen:	")))
 		except TypeError:
 			print("Bitte nur ganze Zahlen eingeben!")
-	# TODO: there can be situations where the number of *pfand* bottles per unit is zero
-	# then this statement doesn't work
-	# can be caught with "if Product.bottlePfand == 0"
-	pfandBottles = quantity
 		
-		writeBuffer.append(quantity)
-	except TypeError:
-		print("Bitte nur ganze Zahlen eingeben!")
+		if currentProduct.bottlePfand != 0:
+			pfandbottles = quantity
+		
+			writeBuffer.append(quantity)
 	
-	try:
-		writeBuffer.append(float(raw_input("Preis pro Liefereinheit:	")))
-	except TypeError:
-		print("Bitte nur Dezimalzahlen eingeben!")
+	while True:
+		try:
+			writeBuffer.append(float(raw_input("Preis pro Liefereinheit:	")))
+		except TypeError:
+			print("Bitte nur Dezimalzahlen eingeben!")
 	
-	try:
-		writeBuffer.append(float(raw_input("Aufschlag pro Flasche:		")))
-	except TypeError:
-		print("Bitte nur Dezimalzahlen eingeben!")
-	
-	# TODO: fucking Pfand, man
-	
-	return writeBuffer, pfandBottles, pfandCrates
+	while True:
+		try:
+			writeBuffer.append(float(raw_input("Aufschlag pro Flasche:		")))
+		except TypeError:
+			print("Bitte nur Dezimalzahlen eingeben!")
+		
+	return writeBuffer, pfandcrates, pfandbottles
 
 def new_stocktake_detail():
-	writeBuffer, pfandBottles, pfandCrates = edit_write_buffer(inputArtNum)
+	while True:
+		try:
+			inputArtNum = int(raw_input("Artikelnummer:		"))
+		except TypeError:
+			print("Bitte nur Ziffern eingeben!")
+	
+	writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum)
 	if yes_no(
-		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 		"Angaben verworfen!\n\n"
 		) is True:
 		session.add(
 			StockTakeDetail(
-# 				StockTakeID = writeBuffer.pop(0),
+				StockTakeID = writeBuffer.pop(0),
 				artNum = writeBuffer.pop(0),
 				quantity = writeBuffer.pop(0),
 				unitCost = writeBuffer.pop(0),
 				bottleSurcharge = writeBuffer.pop(0),
-				pfandCrates = writeBuffer.pop(0),
-				pfandBottles = writeBuffer.pop(0)
+				pfandCrates = pfandcrates,
+				pfandbottles = pfandbottles
 			)
 		)
 	else:
 		pass
 
 def extra_pfand():
-	if yes_no("Ist zusaetzliches Leergut noch vorhanden") is True:
+	if yes_no("Ist zusaetzliches Leergut auch vorhanden?") is True:
 		# TODO
 		# Anzahl der Kasten (float, because half-crates!)
 		# Anzahl der 0.08 Flaschen
 		# Anzahl der 0.15 Flaschen
+	print("Wie viele Kasten?")
+	while True:
+		try:
+			pfandcrates = int(raw_input("> "))
+		except TypeError:
+			print("Bitte nur Ziffern eingeben!")
+	
+	while True:
+		# TODO: fudge nugget, I've coded myself into a pickle.
+		# see issue #12 on github
+		
+		# I am creating entries with emtpy values. how will I deal with this? pandas?
+		session.add(
+			StockTakeDetail(
+				pfandCrates = pfandcrates,
+				pfandBottles = pfandbottles
+			)
+		)
 		pass
 
 def new_stocktake(inputArtNum):
@@ -141,7 +173,7 @@ def new_stocktake(inputArtNum):
 	
 	session.add(stocktake)
 	
-	while yes_no("Warenbestand eingeben") is True:
+	while yes_no("Möchten Sie den warenbestand eines Produktes eingeben?") is True:
 		new_stocktake_detail()
 	
 	extra_pfand()
@@ -149,11 +181,11 @@ def new_stocktake(inputArtNum):
 	session.commit()
 
 def take_stock():
-	while yes_no("Neue Bestandaufnahme eingeben") is True:
+	while yes_no("Neue Bestandaufnahme eingeben?") is True:
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_exists(inputArtNum) is True:
 			new_stocktake(inputArtNum)
-		elif yes_no("Artikel existiert noch nicht in der Datenbank! Moechten Sie ein neues Produkt anlegen") is True:
+		elif yes_no("Artikel existiert noch nicht in der Datenbank! Moechten Sie ein neues Produkt anlegen?") is True:
 			write_products()    # from import add_products
 		else:
 			continue
