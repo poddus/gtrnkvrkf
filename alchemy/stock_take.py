@@ -157,13 +157,13 @@ def extra_pfand():
 		# see issue #12 on github
 		
 		# I am creating entries with emtpy values. how will I deal with this? pandas?
-		session.add(
-			StockTakeDetail(
-				pfandCrates = pfandcrates,
-				pfandBottles = pfandbottles
-			)
+	
+	session.add(
+		StockTakeDetail(
+			pfandCrates = pfandcrates,
+			pfandBottles = pfandbottles
 		)
-		pass
+	)
 
 def new_stocktake(inputArtNum):
 	stocktake = StockTake()
