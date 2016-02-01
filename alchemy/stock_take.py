@@ -44,27 +44,18 @@ session = Session()
 # 	request change, return to input products, but retain order information
 # 		if changes are made, overwrite previous choice, else keep choices
 
-def choose_to_new_stocktake():
+def yes_no(question, yes="", no=""):
 	while True:
 		print("")
-		print("Neues Bestandaufnahme eingeben? j/n:")
+		print(question + "? j/n:")
 		choice = raw_input(">")
 		if choice == "j":
+			if yes != "":
+				print(yes)
 			return True
 		elif choice == "n":
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
-
-def choose_to_new_detail():
-	while True:
-		print("")
-		print("Warenbestand eingeben? j/n:")
-		choice = raw_input(">")
-		if choice == "j":
-			return True
-		elif choice == "n":
+			if no != "":
+				print(no)
 			return False
 		else:
 			print("Bitte entweder 'j' oder 'n' eingeben")
@@ -82,11 +73,18 @@ def edit_write_buffer(inputArtNum):
 	writeBuffer.append(inputArtNum)
 	try:
 		quantity = int(raw_input("Anzahl der Liefereinheiten:	")))
-		# TODO: convert to bottles
+		# pfandCrates = quantity * number of crates per unit
+		pfandCrates = quantity * session.query(Product.cratesPerUnit).filter(Product.artNum == inputArtNum)
+		quantity *= session.query(Product.bottlesPerUnit).filter(Product.artNum == inputArtNum)
+		
 		try:
 			quantity += int(raw_input("Zusaetzliche volle Flaschen:	")))
 		except TypeError:
 			print("Bitte nur ganze Zahlen eingeben!")
+	# TODO: there can be situations where the number of *pfand* bottles per unit is zero
+	# then this statement doesn't work
+	# can be caught with "if Product.bottlePfand == 0"
+	pfandBottles = quantity
 		
 		writeBuffer.append(quantity)
 	except TypeError:
@@ -104,28 +102,18 @@ def edit_write_buffer(inputArtNum):
 	
 	# TODO: fucking Pfand, man
 	
-	return writeBuffer
-
-def choose_to_accept():
-	while True:
-		print("Bitte ueberpruefen Sie ihre Angaben. Bestaetigen? j/n")
-		choice = raw_input(">")
-		if choice == "j":
-			print("Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.")
-			return True
-		elif choice == "n":
-			print("Angaben verworfen!\n\n")
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
+	return writeBuffer, pfandBottles, pfandCrates
 
 def new_stocktake_detail():
-	writeBuffer = edit_write_buffer(inputArtNum)
-	if choose_to_accept() is True:
+	writeBuffer, pfandBottles, pfandCrates = edit_write_buffer(inputArtNum)
+	if yes_no(
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
+		"Angaben verworfen!\n\n"
+		) is True:
 		session.add(
 			StockTakeDetail(
-				StockTakeID = writeBuffer.pop(0),
+# 				StockTakeID = writeBuffer.pop(0),
 				artNum = writeBuffer.pop(0),
 				quantity = writeBuffer.pop(0),
 				unitCost = writeBuffer.pop(0),
@@ -137,6 +125,14 @@ def new_stocktake_detail():
 	else:
 		pass
 
+def extra_pfand():
+	if yes_no("Ist zusaetzliches Leergut noch vorhanden") is True:
+		# TODO
+		# Anzahl der Kasten (float, because half-crates!)
+		# Anzahl der 0.08 Flaschen
+		# Anzahl der 0.15 Flaschen
+		pass
+
 def new_stocktake(inputArtNum):
 	stocktake = StockTake()
 	stocktake.timestamp = time()
@@ -145,29 +141,19 @@ def new_stocktake(inputArtNum):
 	
 	session.add(stocktake)
 	
-	while choose_to_new_detail() is True:
+	while yes_no("Warenbestand eingeben") is True:
 		new_stocktake_detail()
+	
+	extra_pfand()
 	
 	session.commit()
 
-def choose_to_create():
-	while True:
-		print("Artikel existiert noch nicht in der Datenbank! Moechten Sie ein neues Produkt anlegen? j/n")
-		choice = raw_input(">")
-		if choice == "j":
-			return True
-		elif choice == "n":
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
-
 def take_stock():
-	while choose_to_new_stocktake() is True:
+	while yes_no("Neue Bestandaufnahme eingeben") is True:
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_exists(inputArtNum) is True:
 			new_stocktake(inputArtNum)
-		elif choose_to_create() is True:
+		elif yes_no("Artikel existiert noch nicht in der Datenbank! Moechten Sie ein neues Produkt anlegen") is True:
 			write_products()    # from import add_products
 		else:
 			continue

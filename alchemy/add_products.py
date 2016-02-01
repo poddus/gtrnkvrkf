@@ -10,14 +10,18 @@ from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
 
-def choose_to_input():
+def yes_no(question, yes="", no=""):
 	while True:
 		print("")
-		print("Neues Product eingeben? j/n:")
+		print(question + "? j/n:")
 		choice = raw_input(">")
 		if choice == "j":
+			if yes != "":
+				print(yes)
 			return True
 		elif choice == "n":
+			if no != "":
+				print(no)
 			return False
 		else:
 			print("Bitte entweder 'j' oder 'n' eingeben")
@@ -28,32 +32,6 @@ def check_uniqueness(input):
 		if instance.artNum == input:
 			return False
 	return True
-
-def choose_to_accept():
-	while True:
-		print("Bitte ueberpruefen Sie ihre Angaben. Bestaetigen? j/n")
-		choice = raw_input(">")
-		if choice == "j":
-			print("Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.")
-			return True
-		elif choice == "n":
-			print("Angaben verworfen!\n\n")
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
-
-def choose_to_edit_existing():
-	while True:
-		print("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern? j/n")
-		choice = raw_input(">")
-		if choice == "j":
-			return True
-		elif choice == "n":
-			return False
-		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
-			continue
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
@@ -78,7 +56,11 @@ def edit_write_buffer(inputArtNum):
 
 def create_new_product(inputArtNum):
 	writeBuffer = edit_write_buffer(inputArtNum)
-	if choose_to_accept() is True:
+	if yes_no(
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
+		"Angaben verworfen!\n\n"
+		) is True:
 		session.add(
 			Product(
 				artNum = writeBuffer.pop(0),
@@ -100,7 +82,11 @@ def edit_existing(inputArtNum):
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
 	
-	if choose_to_accept() is True:
+	if yes_no(
+		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen",
+		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
+		"Angaben verworfen!\n\n"
+		) is True:
 		existingProduct.name = writeBuffer.pop(0)
 		existingProduct.bottlesPerUnit = writeBuffer.pop(0)
 		existingProduct.cratesPerUnit = writeBuffer.pop(0)
@@ -109,12 +95,12 @@ def edit_existing(inputArtNum):
 		pass
 
 def add_products():
-	while choose_to_input() is True:
+	while yes_no("Neues Product eingeben") is True:
 		
 		inputArtNum = int(raw_input("Artikelnummer:		"))
 		if check_uniqueness(inputArtNum) is True:
 			create_new_product(inputArtNum)
-		elif choose_to_edit_existing() is True:
+		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern") is True:
 			edit_existing(inputArtNum)
 		else:
 			continue
