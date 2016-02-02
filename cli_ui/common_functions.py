@@ -1,4 +1,3 @@
-from __main__ import session
 from initialize_db import Product
 
 def check_exists(input):
@@ -9,17 +8,16 @@ def check_exists(input):
 
 def yes_no(question, yes="", no=""):
 	while True:
-		print("")
-		print(question + " j/n:")
-		choice = raw_input(">")
+		screen.addstr(question + " j/n:")
+		choice = screen.getkey()
 		if choice == "j":
 			if yes != "":
-				print(yes)
+				screen.addstr("\n" + yes)
 			return True
 		elif choice == "n":
 			if no != "":
-				print(no)
+				screen.addstr("\n" + no)
 			return False
 		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
+			screen.addstr("\n" + "Bitte entweder 'j' oder 'n' eingeben\n")
 			continue

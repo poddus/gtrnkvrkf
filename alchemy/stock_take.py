@@ -1,7 +1,7 @@
 from __main__ import session
 from initialize_db import Product, StockTake, StockTakeDetail
 from add_products import write_products
-from common_functions import *
+from config import *
 
 from time import time
 

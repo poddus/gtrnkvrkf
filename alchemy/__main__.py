@@ -1,14 +1,5 @@
 from __future__ import print_function, division
-
-from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-
-from sqlalchemy.orm import sessionmaker
-Session = sessionmaker(bind=engine)
-session = Session()
+from config import *
 
 from add_products import write_products
 from stock_take import take_stock
@@ -16,7 +7,7 @@ from stock_take import take_stock
 def what_do():
 	while True:
 		print("Was moechten Sie machen? Bitte eine der folgenden Nummern eingeben:")
-		print("0	Programm schließen")
+		print("0	Programm schliessen")
 		print("1	Verkauf")
 		print("2	Neue Lieferung / Inventar Pruefen")
 		print("3	Sortiment bearbeiten")

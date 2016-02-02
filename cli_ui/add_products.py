@@ -1,5 +1,14 @@
-from __main__ import session
-from config import *
+import curses
+from tabulate import tabulate
+
+from initialize_db import Product
+from common_functions import *
+
+stdscr = curses.initscr()
+curses.noecho()
+# curses.raw()    # passes interrupt and quit to the program without generating a signal
+curses.cbreak()
+curses.nonl()
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
@@ -64,14 +73,32 @@ def edit_existing(inputArtNum):
 
 def add_products():
 	while yes_no("Neues Product eingeben?") is True:
+		stdscr.clear()
+		
+		table = []
+		table.append(["Artikelnummer:", ">"])
+		table.append(["Artikel Name:", ">"])
+		table.append(["Flaschen pro Einheit:", ">"])
+		table.append(["Kasten pro Einheit:", ">"])
+		table.append(["Flaschenpfand:", ">"])
+		tabtable = tabulate(table)
+		
+		stdscr.addstr(tabtable)
+		
+		# get length of longest line in table
+		linelen = 0
+		for line in tabtable:
+			if len(line) > linelen:
+				linelen = len(line)
+		return linelen
 		while True:
 			try:
-				inputArtNum = int(raw_input("Artikelnummer:		"))
+				inputArtNum = int(stdscr.getstr(0,linelen))
 				break
 			except TypeError:
 				print("Bitte nur Ziffern eingeben!")
 		
-		if check_exists(inputArtNum) is False:    # if unique
+		if check_exists(inputArtNum, session) is False:    # if unique
 			create_new_product(inputArtNum)
 		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern?") is True:
 			edit_existing(inputArtNum)

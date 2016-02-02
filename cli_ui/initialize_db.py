@@ -1,9 +1,9 @@
-from config import *
-
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
 from tabulate import tabulate
+
+
 
 class Product(Base):
 	"""
