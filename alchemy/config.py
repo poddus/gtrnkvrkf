@@ -1,3 +1,7 @@
+from __future__ import print_function, division
+from tabulate import tabulate
+import os
+
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
 
@@ -22,9 +26,8 @@ def check_exists(input):
 
 def yes_no(question, yes="", no=""):
 	while True:
-		print("")
 		print(question + " j/n:")
-		choice = raw_input(">")
+		choice = raw_input("> ")
 		if choice == "j":
 			if yes != "":
 				print(yes)
@@ -36,3 +39,6 @@ def yes_no(question, yes="", no=""):
 		else:
 			print("Bitte entweder 'j' oder 'n' eingeben")
 			continue
+
+def clear_screen():
+	os.system('cls' if os.name == 'nt' else 'clear')

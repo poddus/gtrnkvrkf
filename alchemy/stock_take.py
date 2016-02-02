@@ -48,7 +48,7 @@ def edit_write_buffer(inputArtNum):
 		try:
 			quantity = int(raw_input("Anzahl der Liefereinheiten:	"))
 			break
-		except TypeError:
+		except:
 			print("Bitte nur ganze Zahlen eingeben!")
 	
 	# convert unit quantity to bottle quantity
@@ -60,7 +60,7 @@ def edit_write_buffer(inputArtNum):
 		try:
 			quantity += int(raw_input("Zusaetzliche volle Flaschen:	"))
 			break
-		except TypeError:
+		except:
 			print("Bitte nur ganze Zahlen eingeben!")
 		
 	if currentProduct.bottlePfand != 0:
@@ -72,14 +72,14 @@ def edit_write_buffer(inputArtNum):
 		try:
 			writeBuffer.append(float(raw_input("Preis pro Liefereinheit:	")))
 			break
-		except TypeError:
+		except:
 			print("Bitte nur Dezimalzahlen eingeben!")
 	
 	while True:
 		try:
 			writeBuffer.append(float(raw_input("Aufschlag pro Flasche:		")))
 			break
-		except TypeError:
+		except:
 			print("Bitte nur Dezimalzahlen eingeben!")
 		
 	return writeBuffer, pfandcrates, pfandbottles
@@ -89,7 +89,7 @@ def new_stocktake_detail():
 		try:
 			inputArtNum = int(raw_input("Artikelnummer:		"))
 			break
-		except TypeError:
+		except:
 			print("Bitte nur Ziffern eingeben!")
 	
 	if check_exists(inputArtNum) is True:
@@ -100,7 +100,7 @@ def new_stocktake_detail():
 		write_products()    # imported from add_products
 	
 	if yes_no(
-		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
+		"\nBitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 		"Angaben verworfen!\n\n"
 		) is True:

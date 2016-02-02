@@ -1,34 +1,51 @@
-from __main__ import session
 from config import *
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []
 	writeBuffer.append(inputArtNum)
-	writeBuffer.append(raw_input("\nArtikel Name:		"))
-	try:
-		writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
-	except TypeError:
-		print("Bitte nur ganze Zahlen eingeben!")
+	writeBuffer.append(raw_input("Artikel Name:		"))
+	while True:
+		try:
+			writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
+			break
+		except:
+			print("Bitte nur ganze Zahlen eingeben!\n")
 	
-	try:
-		writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
-	except TypeError:
-		print("Bitte nur ganze Zahlen eingeben!")
+	while True:
+		try:
+			writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
+			break
+		except:
+			print("Bitte nur ganze Zahlen eingeben!\n")
 	
-	try:
-		writeBuffer.append(float(raw_input("Flaschenpfand:		")))
-	except TypeError:
-		print("Bitte nur Dezimalzahlen eingeben!")
+	while True:
+		try:
+			writeBuffer.append(float(raw_input("Flaschenpfand:		")))
+			break
+		except:
+			print("Bitte nur Dezimalzahlen eingeben!\n")
 	
 	return writeBuffer
 
 def create_new_product(inputArtNum):
 	writeBuffer = edit_write_buffer(inputArtNum)
+	
+	clear_screen()
+	# for some reason this is interpreted as a print statement, not the __future__ print function
+	print("ArtNum	", writeBuffer[0])
+	print("Name		", writeBuffer[1])
+	print("Fl/E		", writeBuffer[2])
+	print("Ka/E		", writeBuffer[3])
+	print("Fl Pfand	", writeBuffer[4])
+	
 	if yes_no(
 		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
-		"Angaben verworfen!\n\n"
+		"Angaben verworfen!"
 		) is True:
+		raw_input()
+		clear_screen()
+		
 		session.add(
 			Product(
 				artNum = writeBuffer.pop(0),
@@ -51,7 +68,7 @@ def edit_existing(inputArtNum):
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
 	
 	if yes_no(
-		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
+		"\nBitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 		"Angaben verworfen!\n\n"
 		) is True:
