@@ -1,4 +1,4 @@
-from __main__ import *
+from __main__ import session
 from initialize_db import Product, Order, StockTake
 
 # show preisliste

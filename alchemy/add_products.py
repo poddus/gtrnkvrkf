@@ -1,5 +1,6 @@
-from __main__ import *
+from __main__ import session
 from initialize_db import Product
+from common_functions import *
 
 def edit_write_buffer(inputArtNum):
 	writeBuffer = []

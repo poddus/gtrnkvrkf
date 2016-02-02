@@ -1,5 +1,7 @@
-from __main__ import *
+from __main__ import session
+from initialize_db import Product, StockTake, StockTakeDetail
 from add_products import write_products
+from common_functions import *
 
 from time import time
 
@@ -39,12 +41,13 @@ def edit_write_buffer(inputArtNum):
 	currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).one()
 	
 	# add most recent StockTakeID foreign key
-	writeBuffer.append(session.query(StockTake).order_by(StockTake.StockTakeID.desc()).first())
+	writeBuffer.append(session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first())
 	writeBuffer.append(inputArtNum)
 	
 	while True:
 		try:
 			quantity = int(raw_input("Anzahl der Liefereinheiten:	"))
+			break
 		except TypeError:
 			print("Bitte nur ganze Zahlen eingeben!")
 	
@@ -60,10 +63,10 @@ def edit_write_buffer(inputArtNum):
 		except TypeError:
 			print("Bitte nur ganze Zahlen eingeben!")
 		
-		if currentProduct.bottlePfand != 0:
-			pfandbottles = quantity
-		
-			writeBuffer.append(quantity)
+	if currentProduct.bottlePfand != 0:
+		pfandbottles = quantity
+	
+	writeBuffer.append(quantity)
 	
 	while True:
 		try:
@@ -90,13 +93,12 @@ def new_stocktake_detail():
 			print("Bitte nur Ziffern eingeben!")
 	
 	if check_exists(inputArtNum) is True:
-		new_stocktake(inputArtNum)
+		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum)
 	else:
 		print("Artikel existiert noch nicht in der Datenbank!")
 		# TODO: pass article number to write_products
-		write_products()    # from import add_products
+		write_products()    # imported from add_products
 	
-	writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum)
 	if yes_no(
 		"Bitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
@@ -104,13 +106,13 @@ def new_stocktake_detail():
 		) is True:
 		session.add(
 			StockTakeDetail(
-				StockTakeID = writeBuffer.pop(0),
+				stockTakeID = writeBuffer.pop(0),
 				artNum = writeBuffer.pop(0),
 				quantity = writeBuffer.pop(0),
 				unitCost = writeBuffer.pop(0),
 				bottleSurcharge = writeBuffer.pop(0),
 				pfandCrates = pfandcrates,
-				pfandbottles = pfandbottles
+				pfandBottles = pfandbottles
 			)
 		)
 	else:
@@ -124,18 +126,19 @@ def extra_pfand():
 		# Anzahl der 0.15 Flaschen
 		pass
 	
-	print("Wie viele Kasten?")
-	while True:
-		try:
-			pfandcrates = int(raw_input("> "))
-		except TypeError:
-			print("Bitte nur Ziffern eingeben!")
+		print("Wie viele Kasten?")
+		while True:
+			try:
+				pfandcrates = int(raw_input("> "))
+				break
+			except TypeError:
+				print("Bitte nur Ziffern eingeben!")
 	
-#	while True:
-		# TODO: fudge nugget, I've coded myself into a pickle.
-		# see issue #12 on github
+	#	while True:
+			# TODO: fudge nugget, I've coded myself into a pickle.
+			# see issue #12 on github
 		
-		# I am creating entries with emtpy values. how will I deal with this? pandas?
+			# I am creating entries with emtpy values. how will I deal with this? pandas?
 	
 	session.add(
 		StockTakeDetail(

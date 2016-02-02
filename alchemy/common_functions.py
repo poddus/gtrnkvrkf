@@ -1,3 +1,6 @@
+from __main__ import session
+from initialize_db import Product
+
 def check_exists(input):
 	for instance in session.query(Product.artNum):
 		if instance.artNum == input:

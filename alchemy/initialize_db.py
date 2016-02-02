@@ -1,7 +1,9 @@
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
-from __main__ import *
+from tabulate import tabulate
+
+from __main__ import engine, Base
 
 class Product(Base):
 	"""

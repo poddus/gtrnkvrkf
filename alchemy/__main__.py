@@ -1,5 +1,4 @@
 from __future__ import print_function, division
-from tabulate import tabulate
 
 from sqlalchemy import create_engine
 engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
@@ -10,9 +9,6 @@ Base = declarative_base()
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
-
-from common_functions import *
-from initialize_db import *
 
 from add_products import write_products
 from stock_take import take_stock
