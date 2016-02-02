@@ -1,25 +1,19 @@
-from sqlalchemy import create_engine
-engine = create_engine('sqlite:///alchemy.db', echo=False)    # echo=True to show SQL statements
-
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
-
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
 from tabulate import tabulate
 
+from __main__ import engine, Base
+
 class Product(Base):
 	"""
 	Common base class for all products.
 	A 'unit' is the smallest deliverable unit.
-	'cost' is what we pay.
-	'price' is what the customer pays.
 	"""
 
 	__tablename__ = "tblProducts"
 
-	artNum = Column(Integer, primary_key=True)
+	artNum = Column(Integer, primary_key=True, autoincrement=False)
 	name = Column(String(32))
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
@@ -44,8 +38,8 @@ class Order(Base):
 
 	__tablename__ = "tblOrder"
 
-	OrderID = Column(Integer, primary_key=True)
-	timestamp = Column(DateTime)    # how does this one work?
+	orderID = Column(Integer, primary_key=True)
+	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
 	def get_total(self):
@@ -59,15 +53,15 @@ class OrderDetail(Base):
 	
 	__tablename__ = "tblOrderDetail"
 	
-	OrderDetailID = Column(Integer, primary_key=True)
-	OrderID = Column(Integer, ForeignKey('tblOrder.OrderID'))
+	orderDetailID = Column(Integer, primary_key=True)
+	orderID = Column(Integer, ForeignKey('tblOrder.orderID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
 	
-	def get_subtotals(self, OrderID):
-		# query tblOrderDetail for all entries with given OrderID
+	def get_subtotals(self, orderID):
+		# query tblOrderDetail for all entries with given orderID
 		# query
 		pass
 
@@ -76,28 +70,40 @@ class OrderDetail(Base):
 class StockTake(Base):
 	
 	__tablename__ = "tblStockTake"
-	StockTakeID = Column(Integer, primary_key=True)
-	timestamp = Column(DateTime)    # how does this one work?
+	stockTakeID = Column(Integer, primary_key=True)
+	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
 	stocktakedetail = relationship("StockTakeDetail")
 	
 	def get_inventory_value(self, StockTake):
-		# query tblOrderDetail for all entries with given OrderID
-		# query
-		pass
+		# should value be what we payed for it or what we get when selling?
+		total = 0
+		details = self.stocktakedetail
+		
+		for instances in details:
+			total += details.get_unit_price()
 
 class StockTakeDetail(Base):
+	"""
+	'cost' is what we pay.
+	'price' is what the customer pays.
+	"""
 	
 	__tablename__ = "tblStockTakeDetail"
 	
-	StockTakeDetailID = Column(Integer, primary_key=True)
-	StockTakeID = Column(Integer, ForeignKey('tblStockTake.StockTakeID'))
+	stockTakeDetailID = Column(Integer, primary_key=True)
+	stockTakeID = Column(Integer, ForeignKey('tblStockTake.stockTakeID'))
 	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
 	quantity = Column(Integer)
 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
 	bottleSurcharge = Column(Float)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
+	
+	product = relationship("Product")
+	
+	def get_unit_price(self):
+		return (self.unitCost + (self.bottleSurcharge * self.product.bottlesPerUnit))
 
 Base.metadata.create_all(engine)
