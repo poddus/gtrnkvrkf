@@ -35,12 +35,12 @@ from time import time
 # 	request change, return to input products, but retain order information
 # 		if changes are made, overwrite previous choice, else keep choices
 
-def edit_write_buffer(inputArtNum):
+def edit_write_buffer(inputArtNum, stocktake, currentProduct):
 	writeBuffer = []
-	currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).one()
 	
 	# add most recent StockTakeID foreign key
-	writeBuffer.append(session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first())
+	print stocktake
+	writeBuffer.append(stocktake.stockTakeID)
 	writeBuffer.append(inputArtNum)
 	
 	while True:
@@ -83,7 +83,7 @@ def edit_write_buffer(inputArtNum):
 		
 	return writeBuffer, pfandcrates, pfandbottles
 
-def new_stocktake_detail():
+def new_stocktake_detail(stocktake):
 	while True:
 		try:
 			inputArtNum = int(raw_input("Artikelnummer:			"))
@@ -92,11 +92,11 @@ def new_stocktake_detail():
 			print "Bitte nur Ziffern eingeben!"
 	
 	if check_exists(inputArtNum) is True:
-		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum)
+		currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
+		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum, stocktake, currentProduct)
 		
 		clear_screen()
 		
-		currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
 		einheiten = writeBuffer[2] // currentProduct.bottlesPerUnit
 		zusFlaschen = writeBuffer[2] % currentProduct.bottlesPerUnit
 		
@@ -194,7 +194,7 @@ def new_stocktake():
 	clear_screen()
 	print "Geben Sie den Bestand jedes Produktes nacheinander ein."
 	while yes_no("Moechten Sie den Warenbestand eines Produktes eingeben?") is True:
-		new_stocktake_detail()
+		new_stocktake_detail(stocktake)
 	
 	extra_pfand()
 
