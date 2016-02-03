@@ -3,8 +3,6 @@ from config import *
 from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
 from sqlalchemy.orm import relationship
 
-from tabulate import tabulate
-
 class Product(Base):
 	"""
 	Common base class for all products.
@@ -104,6 +102,6 @@ class StockTakeDetail(Base):
 	product = relationship("Product")
 	
 	def get_unit_price(self):
-		return (self.unitCost + (self.bottleSurcharge * self.product.bottlesPerUnit))
+		return (self.unitCost*1.19 + (self.bottleSurcharge * self.product.bottlesPerUnit))
 
 Base.metadata.create_all(engine)

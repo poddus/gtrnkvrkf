@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from __future__ import division
 from tabulate import tabulate
 import os
 
@@ -26,18 +26,18 @@ def check_exists(input):
 
 def yes_no(question, yes="", no=""):
 	while True:
-		print(question + " j/n:")
+		print question + " j/n:"
 		choice = raw_input("> ")
 		if choice == "j":
 			if yes != "":
-				print(yes)
+				print yes
 			return True
 		elif choice == "n":
 			if no != "":
-				print(no)
+				print no
 			return False
 		else:
-			print("Bitte entweder 'j' oder 'n' eingeben")
+			print "Bitte entweder 'j' oder 'n' eingeben"
 			continue
 
 def clear_screen():

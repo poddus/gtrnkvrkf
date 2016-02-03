@@ -9,21 +9,21 @@ def edit_write_buffer(inputArtNum):
 			writeBuffer.append(int(raw_input("Flaschen pro Einheit:	")))
 			break
 		except:
-			print("Bitte nur ganze Zahlen eingeben!\n")
+			print "Bitte nur ganze Zahlen eingeben!\n"
 	
 	while True:
 		try:
 			writeBuffer.append(int(raw_input("Kasten pro Einheit:	")))
 			break
 		except:
-			print("Bitte nur ganze Zahlen eingeben!\n")
+			print "Bitte nur ganze Zahlen eingeben!\n"
 	
 	while True:
 		try:
 			writeBuffer.append(float(raw_input("Flaschenpfand:		")))
 			break
 		except:
-			print("Bitte nur Dezimalzahlen eingeben!\n")
+			print "Bitte nur Dezimalzahlen eingeben!\n"
 	
 	return writeBuffer
 
@@ -39,7 +39,7 @@ def create_new_product(inputArtNum):
 		bottlePfand = writeBuffer.pop(0),
 	)
 	
-	print(newProduct)
+	print newProduct
 	if yes_no(
 		"\nBitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 		"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
@@ -56,10 +56,11 @@ def create_new_product(inputArtNum):
 
 def edit_existing(inputArtNum):
 	existingProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
-	print(existingProduct)
-	print()
+	print existingProduct
+	print 
 	# is there a way to retain existing values?
-	print("Achtung: Alle Eingaben muessen neu ausgefuellt werden\n")
+	print "Achtung: Alle Eingaben muessen neu ausgefuellt werden\n"
+	print "Artikelnummer:		%d" % inputArtNum
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
 	
@@ -87,7 +88,7 @@ def add_products():
 				inputArtNum = int(raw_input("Artikelnummer:		"))
 				break
 			except TypeError:
-				print("Bitte nur Ziffern eingeben!")
+				print "Bitte nur Ziffern eingeben!"
 		
 		if check_exists(inputArtNum) is False:    # if unique
 			create_new_product(inputArtNum)

@@ -13,22 +13,22 @@ def what_do():
 	
 	while True:
 		clear_screen()
-		print("Was moechten Sie machen? Bitte eine der folgenden Nummern eingeben:")
-		print(tabulate(table))
+		print "Was moechten Sie machen? Bitte eine der folgenden Nummern eingeben:"
+		print tabulate(table)
 
 		choice = None
 		while choice == None:
 			try:
 				choice = int(raw_input("> "))
 			except ValueError:
-				print("Bitte nur Nummern eingeben!")
+				print "Bitte nur Nummern eingeben!"
 
 		if choice == 0:
 			clear_screen()
 			return 0
 		elif choice == 1:
 			# link sale.py
-			print("not implemented")
+			print "not implemented"
 		elif choice == 2:
 			clear_screen()
 			take_stock()
@@ -37,8 +37,8 @@ def what_do():
 			write_products()
 		elif choice == 4:
 			# link help.py
-			print("not implemented")
+			print "not implemented"
 		else:
-			print("not implemented")
+			print "not implemented"
 
 what_do()

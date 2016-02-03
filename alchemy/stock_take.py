@@ -1,4 +1,3 @@
-from __main__ import session
 from initialize_db import Product, StockTake, StockTakeDetail
 from add_products import write_products
 from config import *
@@ -49,7 +48,7 @@ def edit_write_buffer(inputArtNum):
 			quantity = int(raw_input("Anzahl der Liefereinheiten:	"))
 			break
 		except:
-			print("Bitte nur ganze Zahlen eingeben!")
+			print "Bitte nur ganze Zahlen eingeben!"
 	
 	# convert unit quantity to bottle quantity
 	quantity *= currentProduct.bottlesPerUnit
@@ -61,7 +60,7 @@ def edit_write_buffer(inputArtNum):
 			quantity += int(raw_input("Zusaetzliche volle Flaschen:	"))
 			break
 		except:
-			print("Bitte nur ganze Zahlen eingeben!")
+			print "Bitte nur ganze Zahlen eingeben!"
 		
 	if currentProduct.bottlePfand != 0:
 		pfandbottles = quantity
@@ -73,14 +72,14 @@ def edit_write_buffer(inputArtNum):
 			writeBuffer.append(float(raw_input("Preis pro Liefereinheit:	")))
 			break
 		except:
-			print("Bitte nur Dezimalzahlen eingeben!")
+			print "Bitte nur Dezimalzahlen eingeben!"
 	
 	while True:
 		try:
 			writeBuffer.append(float(raw_input("Aufschlag pro Flasche:		")))
 			break
 		except:
-			print("Bitte nur Dezimalzahlen eingeben!")
+			print "Bitte nur Dezimalzahlen eingeben!"
 		
 	return writeBuffer, pfandcrates, pfandbottles
 
@@ -90,12 +89,12 @@ def new_stocktake_detail():
 			inputArtNum = int(raw_input("Artikelnummer:		"))
 			break
 		except:
-			print("Bitte nur Ziffern eingeben!")
+			print "Bitte nur Ziffern eingeben!"
 	
 	if check_exists(inputArtNum) is True:
 		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum)
 	else:
-		print("Artikel existiert noch nicht in der Datenbank!")
+		print "Artikel existiert noch nicht in der Datenbank!"
 		# TODO: pass article number to write_products
 		write_products()    # imported from add_products
 	
@@ -126,13 +125,13 @@ def extra_pfand():
 		# Anzahl der 0.15 Flaschen
 		pass
 	
-		print("Wie viele Kasten?")
+		print "Wie viele Kasten?"
 		while True:
 			try:
 				pfandcrates = int(raw_input("> "))
 				break
 			except TypeError:
-				print("Bitte nur Ziffern eingeben!")
+				print "Bitte nur Ziffern eingeben!"
 	
 	#	while True:
 			# TODO: fudge nugget, I've coded myself into a pickle.
@@ -150,7 +149,7 @@ def extra_pfand():
 def new_stocktake():
 	stocktake = StockTake()
 	stocktake.timestamp = time()
-	print("Notiz zu dieser Bestandaufnahme:")
+	print "Notiz zu dieser Bestandaufnahme:"
 	stocktake.note = raw_input("> ")
 	
 	session.add(stocktake)
