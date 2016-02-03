@@ -20,8 +20,12 @@ class Product(Base):
 	def __repr__(self):
 		# print products as tabulate table
 		table = []
-		table.append([self.artNum, self.name, self.bottlesPerUnit, self.cratesPerUnit, self.bottlePfand])
-		return (tabulate(table, headers=["Artikel#", "Name", "Fl pro E", "Ka pro E", "Pfand pro Fl"]))
+		table.append(["Artikel#", self.artNum])
+		table.append(["Name", self.name])
+		table.append(["Fl pro E", self.bottlesPerUnit])
+		table.append(["Ka pro E", self.cratesPerUnit])
+		table.append(["Pfand pro Fl", self.bottlePfand])
+		return (tabulate(table, numalign="center"))
 
 # unit cost no longer stored in Product class/tbl. define function anyway (db-query StockTake) for convenience?
 # 	def get_cost_MwSt(self):
@@ -105,3 +109,52 @@ class StockTakeDetail(Base):
 		return (self.unitCost*1.19 + (self.bottleSurcharge * self.product.bottlesPerUnit))
 
 Base.metadata.create_all(engine)
+
+"""----------------------------------------------------------------------------------------------"""
+# if doesn't exist, create Products for Pfand bottles to database
+# 
+# This is necessary in order to track additional Pfand Bottles without having to
+# worry about what's on the label
+
+# I need this and can't get it from config due to circular dependencies
+def init_check_exists(input):
+	for instance in session.query(Product.artNum):
+		if instance.artNum == input:
+			return True
+	return False
+
+crates = Product(
+	artNum = 10000,
+	name = "Pfandkasten",
+	bottlesPerUnit = 0,
+	cratesPerUnit = 0,
+	bottlePfand = 0.08,
+)
+
+bottle008 = Product(
+	artNum = 10001,
+	name = "0.08 Pfandflasche",
+	bottlesPerUnit = 0,
+	cratesPerUnit = 0,
+	bottlePfand = 0.08,
+)
+
+bottle015 = Product(
+	artNum = 10002,
+	name = "0.15 Pfandflasche",
+	bottlesPerUnit = 0,
+	cratesPerUnit = 0,
+	bottlePfand = 0.15,
+)
+
+if init_check_exists(crates.artNum) is False:
+	session.add(crates)
+	session.commit()
+
+if init_check_exists(bottle008.artNum) is False:
+	session.add(bottle008)
+	session.commit()
+
+if init_check_exists(bottle015.artNum) is False:
+	session.add(bottle015)
+	session.commit()

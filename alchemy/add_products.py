@@ -59,7 +59,7 @@ def edit_existing(inputArtNum):
 	print existingProduct
 	print 
 	# is there a way to retain existing values?
-	print "Achtung: Alle Eingaben muessen neu ausgefuellt werden\n"
+	print "Achtung: Alle Angaben muessen neu ausgefuellt werden\n"
 	print "Artikelnummer:		%d" % inputArtNum
 	writeBuffer = edit_write_buffer(inputArtNum)
 	del writeBuffer[0]    # remove artNum, we don't want to CHANGE that ever, right?
