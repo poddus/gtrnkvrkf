@@ -2,6 +2,7 @@ from config import *
 
 from add_products import write_products
 from stock_take import take_stock
+from sale import sale
 
 def what_do():	
 	table = []
@@ -27,8 +28,8 @@ def what_do():
 			clear_screen()
 			return 0
 		elif choice == 1:
-			# link sale.py
-			print "not implemented"
+			clear_screen()
+			sale()
 		elif choice == 2:
 			clear_screen()
 			take_stock()

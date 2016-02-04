@@ -40,6 +40,7 @@ class Order(Base):
 	__tablename__ = "tblOrder"
 
 	orderID = Column(Integer, primary_key=True)
+	stockTakeID = Column(Integer, ForeignKey('tblStockTake.stockTakeID')
 	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
@@ -48,6 +49,7 @@ class Order(Base):
 		pass
 	
 	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
+	stocktake = relationship('StockTake')
 	orderdetail = relationship("OrderDetail")
 
 class OrderDetail(Base):
@@ -76,7 +78,7 @@ class StockTake(Base):
 	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
 	
-	stocktakedetail = relationship("StockTakeDetail", back_populates="stocktake")
+	stocktakedetail = relationship("StockTakeDetail")
 	
 	def get_inventory_value(self, StockTake):
 		# TODO: should value be what we payed for it or what we get when selling?
@@ -103,11 +105,13 @@ class StockTakeDetail(Base):
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
 	
-	stocktake = relationship("StockTake", back_populates="stocktakedetail")
 	product = relationship("Product")
 	
 	def get_unit_price(self):
 		return (self.unitCost*1.19 + (self.bottleSurcharge * self.product.bottlesPerUnit))
+	
+	def get_bottle_price(self):
+		return get_unit_price() / self.product.bottlesPerUnit
 
 Base.metadata.create_all(engine)
 
