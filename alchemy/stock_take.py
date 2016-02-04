@@ -4,44 +4,11 @@ from config import *
 
 from time import time
 
-
-# ask to input product to the stock take
-# select article using artNum
-# if product exists in tblProducts:
-# 	print info about article
-#	ask if info (example cost) has changed
-#	if yes, edit_products (not yet implemented)
-# else:
-# 	ask to add product to database
-# 	add_products.py
-#
-# select quantity (has to either be directly in bottles, or calculated
-# from shipment units into bottles
-#
-# write selection to session
-# session.add(StockTake...)
-# 
-# repeat until stock take is complete
-# 
-# Leergut zusaetzlich noch da?
-# 	Anzahl der Kasten (float, because half-crates!)
-# 	Anzahl der 0.08 Flaschen
-# 	Anzahl der 0.15 Flaschen
-# 
-# write net Pfand to session
-# 
-# print articles and quantities, give choice:
-# 	acknowledge, write transaction to database
-# 	request change, return to input products, but retain order information
-# 		if changes are made, overwrite previous choice, else keep choices
-
-def edit_write_buffer(inputArtNum, stocktake, currentProduct):
+def edit_write_buffer(stocktake, currentProduct):
 	writeBuffer = []
 	
-	# add most recent StockTakeID foreign key
-	print stocktake
 	writeBuffer.append(stocktake.stockTakeID)
-	writeBuffer.append(inputArtNum)
+	writeBuffer.append(currentProduct.artNum)
 	
 	while True:
 		try:
@@ -67,9 +34,15 @@ def edit_write_buffer(inputArtNum, stocktake, currentProduct):
 	
 	writeBuffer.append(quantity)
 	
+	# TODO: if possible, default value to last entry
+	# 
+	# lastStockTakeEntry = query for last entry of currentProduct in StockTakeDetail
+	# lastStockTakeEntry.unitCost
+	# lastStockTakeEntry.bottleSurcharge
+	# if input is "", use previous values
 	while True:
 		try:
-			writeBuffer.append(float(raw_input("Preis pro Liefereinheit:	")))
+			writeBuffer.append(float(raw_input("Kosten pro Liefereinheit:	")))
 			break
 		except:
 			print "Bitte nur Dezimalzahlen eingeben!"
@@ -93,7 +66,7 @@ def new_stocktake_detail(stocktake):
 	
 	if check_exists(inputArtNum) is True:
 		currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
-		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(inputArtNum, stocktake, currentProduct)
+		writeBuffer, pfandcrates, pfandbottles = edit_write_buffer(stocktake, currentProduct)
 		
 		clear_screen()
 		
@@ -107,17 +80,17 @@ def new_stocktake_detail(stocktake):
 		table.append(["Preis pro Einheit", writeBuffer[3]])
 		table.append(["Aufschlag pro Fl", writeBuffer[4]])
 		
-		print tabulate(table, numalign="center")
+		print tabulate(table, numalign="left")
 		if yes_no(
 			"\nBitte ueberpruefen Sie ihre Angaben. Bestaetigen?",
 			"Angaben akzeptiert, werden am Schluss in der Datenbank gespeichert.",
 			"Angaben verworfen!"
 			) is True:
 			
-			raw_input()
+			
+			
 			clear_screen()
 			
-			# TODO: Pfand tracking is not figured out yet
 			session.add(
 				StockTakeDetail(
 					stockTakeID = writeBuffer.pop(0),
@@ -131,13 +104,16 @@ def new_stocktake_detail(stocktake):
 			)
 	else:
 		print "Artikel existiert noch nicht in der Datenbank!"
+		print "Bitte legen Sie Artikel immer zuerst an. Sie werden weitergeleitet"
 		raw_input()
 		clear_screen()
 		
 		write_products()    # imported from add_products
+		clear_screen()
+		print "Eingegebene Artikel sind gespeichert. Fahren Sie nun mit der Bestandsaufnahme weiter."
 		pass
 
-def extra_pfand():
+def extra_pfand(stocktake):
 	if yes_no("Ist zusaetzliches Leergut auch vorhanden?") is True:
 		# TODO: I'm creating entries with NULL values, how will I deal with that later on?
 		while True:
@@ -145,7 +121,7 @@ def extra_pfand():
 				pfandcrates = float(raw_input("Wie viele Kasten?		"))
 				session.add(
 					StockTakeDetail(
-						stockTakeID = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first(),
+						stockTakeID = stocktake.stockTakeID,
 						artNum = 10000,
 						pfandCrates = pfandcrates
 					)
@@ -159,7 +135,7 @@ def extra_pfand():
 				bottles008 = int(raw_input("Wie viele 0.08 Flaschen:	"))
 				session.add(
 					StockTakeDetail(
-						stockTakeID = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first(),
+						stockTakeID = stocktake.stockTakeID,
 						artNum = 10001,
 						pfandBottles008 = bottles008
 					)
@@ -173,7 +149,7 @@ def extra_pfand():
 				bottles015 = int(raw_input("Wie viele 0.15 Flaschen:	"))
 				session.add(
 					StockTakeDetail(
-						stockTakeID = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first(),
+						stockTakeID = stocktake.stockTakeID,
 						artNum = 10002,
 						pfandBottles015 = bottles015
 					)
@@ -196,10 +172,12 @@ def new_stocktake():
 	while yes_no("Moechten Sie den Warenbestand eines Produktes eingeben?") is True:
 		new_stocktake_detail(stocktake)
 	
-	extra_pfand()
+	extra_pfand(stocktake)
 
 def take_stock():
 	if yes_no("Neue Bestandsaufnahme eingeben?"):
 		clear_screen()
 		new_stocktake()
 		session.commit()
+		print "Bestandsaufnahme wurde in die Datenbank eingetragen"
+		raw_input()

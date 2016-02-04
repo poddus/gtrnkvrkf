@@ -18,14 +18,13 @@ class Product(Base):
 	bottlePfand = Column(Float)
 
 	def __repr__(self):
-		# print products as tabulate table
 		table = []
 		table.append(["Artikel#", self.artNum])
 		table.append(["Name", self.name])
 		table.append(["Fl pro E", self.bottlesPerUnit])
 		table.append(["Ka pro E", self.cratesPerUnit])
 		table.append(["Pfand pro Fl", self.bottlePfand])
-		return (tabulate(table, numalign="center"))
+		return (tabulate(table, numalign="left"))
 
 # unit cost no longer stored in Product class/tbl. define function anyway (db-query StockTake) for convenience?
 # 	def get_cost_MwSt(self):
@@ -45,7 +44,7 @@ class Order(Base):
 	note = Column(String)
 	
 	def get_total(self):
-		# add up subtotals from OrderDetail.get_subtotals(), return a nice table
+		# TODO: add up subtotals from OrderDetail.get_subtotals(), return a nice table
 		pass
 	
 	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
@@ -63,6 +62,7 @@ class OrderDetail(Base):
 	pfandBottles = Column(Integer)
 	
 	def get_subtotals(self, orderID):
+		# TODO:
 		# query tblOrderDetail for all entries with given orderID
 		# query
 		pass
@@ -79,7 +79,7 @@ class StockTake(Base):
 	stocktakedetail = relationship("StockTakeDetail", back_populates="stocktake")
 	
 	def get_inventory_value(self, StockTake):
-		# should value be what we payed for it or what we get when selling?
+		# TODO: should value be what we payed for it or what we get when selling?
 		total = 0
 		details = self.stocktakedetail
 		
@@ -117,7 +117,7 @@ Base.metadata.create_all(engine)
 # This is necessary in order to track additional Pfand Bottles without having to
 # worry about what's on the label
 
-# I need this and can't get it from config due to circular dependencies
+# I need this but can't get it from config due to circular dependencies
 def init_check_exists(input):
 	for instance in session.query(Product.artNum):
 		if instance.artNum == input:

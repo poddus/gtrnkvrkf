@@ -92,7 +92,7 @@ def add_products():
 		
 		if check_exists(inputArtNum) is False:    # if unique
 			create_new_product(inputArtNum)
-		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern?") is True:
+		elif yes_no("Artikel existiert schon in der Datenbank! Moechten Sie die Daten aendern?\nSollte nur aus wichtigem Grund gemacht werden!") is True:
 			clear_screen()
 			edit_existing(inputArtNum)
 		else:
