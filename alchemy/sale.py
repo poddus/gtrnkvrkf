@@ -1,35 +1,54 @@
 from config import *
 from initialize_db import Product, Order, StockTake
+from sqlalchemy import select
 
-def get_current_inventory():
-	# TODO: from lastStockTake, subtract from quantity all associated Orders, return
-	pass
-
-def tbl_of_products(lastStockTake, inventory):
-	# TODO: inventory not yet implemented
+def get_current_inventory(lastStockTake):
+	amount = {}
+	inventory = {}
+	
+	if lastStockTake is not None:
+		if lastStockTake.stocktakedetail is not None:
+			for instance in lastStockTake.stocktakedetail:
+				amount[instance.artNum] = instance.quantity
+				inventory[instance.artNum] = [
+					instance.product.name,
+					None,    # placeholder for unit quantity
+					instance.product.bottlesPerUnit,    # placeholder for bottle quantity
+					instance.get_unit_price(),
+					instance.get_bottle_price()
+				]
+	
+		if lastStockTake.order is not None:
+			for instance in lastStockTake.order:
+				amount[instance.artNum] -= instance.quantity
+	
 	table = []
-	for entry in lastStockTake.stocktakedetail:
-		# TODO: only add if available quantity in current inventory > 0
-		inventoryEntry = session.query(inventory).filter(artNum == entry.artNum).first()
+	for key in inventory:
+		# insert amounts into placeholder in inventory
+		inventory[key][1] = amount[key] // inventory[key][2]
+		inventory[key][2] = amount[key] % inventory[key][2]
 		
+		# convert to tabulate table
 		table.append(
 			[
-				entry.artNum,
-				entry.product.name,
-				inventoryEntry.quantity // entry.product.bottlesPerUnit,
-				inventoryEntry.quantity % entry.product.bottlesPerUnit
-				entry.get_unit_price()
-				entry.get_bottle_price()
+				key,
+				inventory[key][0],
+				inventory[key][1],
+				inventory[key][2],
+				inventory[key][3],
+				inventory[key][4]
 			]
 		)
 	
-	return tabulate(table, headers="Artikel#", "Name", "Einheiten", "+Flaschen", "Preis/E", "Preis/Fl")
+	print tabulate(table, headers=["Artikel#", "Name", "Einheiten", "+Flaschen", "Preis/E", "Preis/Fl"])
+	return amount
 
 def sale():
 	lastStockTake = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first()
-	inventory = get_current_inventory()
+	inventory = get_current_inventory(lastStockTake)
 	
-	print tbl_of_products(lastStockTake, inventory)
+	print inventory
+	raw_input()
 
 
 

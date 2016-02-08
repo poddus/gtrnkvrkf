@@ -1,6 +1,6 @@
 from config import *
 
-from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, join, ForeignKey
+from sqlalchemy import Table, Column, Integer, Float, String, DateTime, MetaData, ForeignKey, select
 from sqlalchemy.orm import relationship
 
 class Product(Base):
@@ -16,6 +16,9 @@ class Product(Base):
 	bottlesPerUnit = Column(Integer)
 	cratesPerUnit = Column(Integer)
 	bottlePfand = Column(Float)
+	
+	stocktakedetail = relationship("StockTakeDetail", back_populates="product")
+	orderdetail = relationship("OrderDetail")
 
 	def __repr__(self):
 		table = []
@@ -40,28 +43,30 @@ class Order(Base):
 	__tablename__ = "tblOrder"
 
 	orderID = Column(Integer, primary_key=True)
-	stockTakeID = Column(Integer, ForeignKey('tblStockTake.stockTakeID')
+	stockTakeID = Column(Integer, ForeignKey("tblStockTake.stockTakeID"))
 	timestamp = Column(Integer)    # how does this one work?
 	note = Column(String)
+	
+	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
+	stocktake = relationship("StockTake", back_populates="order")
+	orderdetail = relationship("OrderDetail")
 	
 	def get_total(self):
 		# TODO: add up subtotals from OrderDetail.get_subtotals(), return a nice table
 		pass
-	
-	# http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
-	stocktake = relationship('StockTake')
-	orderdetail = relationship("OrderDetail")
 
 class OrderDetail(Base):
 	
 	__tablename__ = "tblOrderDetail"
 	
 	orderDetailID = Column(Integer, primary_key=True)
-	orderID = Column(Integer, ForeignKey('tblOrder.orderID'))
-	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
+	orderID = Column(Integer, ForeignKey("tblOrder.orderID"))
+	artNum = Column(Integer, ForeignKey("tblProducts.artNum"))
 	quantity = Column(Integer)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
+	
+	product = relationship("Product", back_populates="orderdetail")
 	
 	def get_subtotals(self, orderID):
 		# TODO:
@@ -79,14 +84,17 @@ class StockTake(Base):
 	note = Column(String)
 	
 	stocktakedetail = relationship("StockTakeDetail")
+	order = relationship("Order", back_populates="stocktake")
 	
-	def get_inventory_value(self, StockTake):
+	def get_initial_inventory_value(self, StockTake):
 		# TODO: should value be what we payed for it or what we get when selling?
 		total = 0
 		details = self.stocktakedetail
 		
 		for instances in details:
 			total += details.get_unit_price()
+		
+		return total
 
 class StockTakeDetail(Base):
 	"""
@@ -97,21 +105,21 @@ class StockTakeDetail(Base):
 	__tablename__ = "tblStockTakeDetail"
 	
 	stockTakeDetailID = Column(Integer, primary_key=True)
-	stockTakeID = Column(Integer, ForeignKey('tblStockTake.stockTakeID'))
-	artNum = Column(Integer, ForeignKey('tblProducts.artNum'))
+	stockTakeID = Column(Integer, ForeignKey("tblStockTake.stockTakeID"))
+	artNum = Column(Integer, ForeignKey("tblProducts.artNum"))
 	quantity = Column(Integer)
 	unitCost = Column(Float)    # pro Liefereinheit, also praktisch pro Kasten
 	bottleSurcharge = Column(Float)
 	pfandCrates = Column(Float)
 	pfandBottles = Column(Integer)
 	
-	product = relationship("Product")
+	product = relationship("Product", back_populates="stocktakedetail")
 	
 	def get_unit_price(self):
 		return (self.unitCost*1.19 + (self.bottleSurcharge * self.product.bottlesPerUnit))
 	
 	def get_bottle_price(self):
-		return get_unit_price() / self.product.bottlesPerUnit
+		return round(self.get_unit_price() / self.product.bottlesPerUnit, 2)
 
 Base.metadata.create_all(engine)
 
