@@ -40,6 +40,7 @@ def what_do():
 			# link help.py
 			print "not implemented"
 		else:
-			print "not implemented"
+			print "ungueltige Auswahl!"
+			raw_input()
 
 what_do()

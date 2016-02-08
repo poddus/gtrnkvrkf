@@ -87,7 +87,7 @@ def add_products():
 			try:
 				inputArtNum = int(raw_input("Artikelnummer:		"))
 				break
-			except TypeError:
+			except:
 				print "Bitte nur Ziffern eingeben!"
 		
 		if check_exists(inputArtNum) is False:    # if unique

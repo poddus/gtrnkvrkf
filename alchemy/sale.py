@@ -3,14 +3,14 @@ from initialize_db import Product, Order, StockTake
 from sqlalchemy import select
 
 def get_current_inventory(lastStockTake):
-	amount = {}
 	inventory = {}
+	dict = {}
 	
 	if lastStockTake is not None:
 		if lastStockTake.stocktakedetail is not None:
 			for instance in lastStockTake.stocktakedetail:
-				amount[instance.artNum] = instance.quantity
-				inventory[instance.artNum] = [
+				inventory[instance.artNum] = [instance.quantity, instance.get_bottle_price()]
+				dict[instance.artNum] = [
 					instance.product.name,
 					None,    # placeholder for unit quantity
 					instance.product.bottlesPerUnit,    # placeholder for bottle quantity
@@ -20,38 +20,101 @@ def get_current_inventory(lastStockTake):
 	
 		if lastStockTake.order is not None:
 			for instance in lastStockTake.order:
-				amount[instance.artNum] -= instance.quantity
+				inventory[instance.artNum] -= instance.quantity
 	
 	table = []
-	for key in inventory:
-		# insert amounts into placeholder in inventory
-		inventory[key][1] = amount[key] // inventory[key][2]
-		inventory[key][2] = amount[key] % inventory[key][2]
+	for key in dict:
+		# insert amounts into placeholders in dict
+		dict[key][1] = inventory[key][0] // dict[key][2]
+		dict[key][2] = inventory[key][0] % dict[key][2]
 		
-		# convert to tabulate table
+		# convert to tabulate-able table
 		table.append(
 			[
 				key,
-				inventory[key][0],
-				inventory[key][1],
-				inventory[key][2],
-				inventory[key][3],
-				inventory[key][4]
+				dict[key][0],
+				dict[key][1],
+				dict[key][2],
+				dict[key][3],
+				dict[key][4]
 			]
 		)
 	
 	print tabulate(table, headers=["Artikel#", "Name", "Einheiten", "+Flaschen", "Preis/E", "Preis/Fl"])
-	return amount
+	print
+	return inventory
+
+def check_available(inputArtNum, inventory):
+	try:
+		if inventory[inputArtNum] > 0:
+			return True
+		else:
+			return False
+	except KeyError:
+		"Artikel existiert nicht!"
+		return False
 
 def sale():
 	lastStockTake = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first()
-	inventory = get_current_inventory(lastStockTake)
 	
-	print inventory
-	raw_input()
-
-
-
+	order = []
+	while yes_no("Neues Product eingeben?") is True:
+		clear_screen()
+		inventory = get_current_inventory(lastStockTake)
+		
+		print "Waehlen Sie ein Produkt\n"
+		while True:
+			try:
+				inputArtNum = int(raw_input("Artikelnummer:		"))
+				currentProduct = session.query(Product).filter(Product.artNum == inputArtNum).first()
+				break
+			except:
+				print "Bitte nur Ziffern eingeben!"
+		
+		if check_available(inputArtNum, inventory) is False:
+			print "Produkt nicht vorhanden!"
+			raw_input()
+			clear_screen()
+			continue
+		else:
+			pass
+		
+		totalQuantity = 0
+		while True:
+			try:
+				unitQuantity = int(raw_input("Anzahl der Liefereinheiten:	"))
+				if unitQuantity * currentProduct.bottlesPerUnit > inventory[inputArtNum]:
+					print "Nicht genug vorhanden!"
+					continue
+				else:
+					totalQuantity += unitQuantity * currentProduct.bottlesPerUnit
+					break
+			except:
+				print "Bitte nur ganze Zahlen eingeben!"
+		
+		while True:
+			try:
+				bottleQuantity = int(raw_input("Anzahl der Flaschen:	"))
+				totalQuantity += bottleQuantity
+				break
+			except:
+				print "Bitte nur ganze Zahlen eingeben!"
+		
+		
+		order.append([inputArtNum, unitQuantity, bottleQuantity, totalQuantity * inventory[inputArtNum][1]])
+		
+		clear_screen()
+		print "Vorgang:"
+		print
+		print tabulate(order, headers=["Artikel#", "Einheiten", "+Flaschen", "Zwischensumme"])
+		
+		total = 0
+		for i in order:
+			total += i[3]
+		
+		print
+		print "Insgesamt: ", total
+		raw_input()
 
 # show preisliste
 #	query database for last StockTake where quantity > 0

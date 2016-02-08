@@ -113,51 +113,6 @@ def new_stocktake_detail(stocktake):
 		print "Eingegebene Artikel sind gespeichert. Fahren Sie nun mit der Bestandsaufnahme weiter."
 		pass
 
-def extra_pfand(stocktake):
-	if yes_no("Ist zusaetzliches Leergut auch vorhanden?") is True:
-		# TODO: I'm creating entries with NULL values, how will I deal with that later on?
-		while True:
-			try:
-				pfandcrates = float(raw_input("Wie viele Kasten?		"))
-				session.add(
-					StockTakeDetail(
-						stockTakeID = stocktake.stockTakeID,
-						artNum = 10000,
-						pfandCrates = pfandcrates
-					)
-				)
-				break
-			except:
-				print "Bitte nur Ziffern eingeben!"
-		
-		while True:
-			try:
-				bottles008 = int(raw_input("Wie viele 0.08 Flaschen:	"))
-				session.add(
-					StockTakeDetail(
-						stockTakeID = stocktake.stockTakeID,
-						artNum = 10001,
-						pfandBottles008 = bottles008
-					)
-				)
-				break
-			except:
-				print "Bitte nur Ziffern eingeben!"
-		
-		while True:
-			try:
-				bottles015 = int(raw_input("Wie viele 0.15 Flaschen:	"))
-				session.add(
-					StockTakeDetail(
-						stockTakeID = stocktake.stockTakeID,
-						artNum = 10002,
-						pfandBottles015 = bottles015
-					)
-				)
-				break
-			except:
-				print "Bitte nur Ziffern eingeben!"
-
 def new_stocktake():
 	stocktake = StockTake()
 	stocktake.timestamp = time()
@@ -172,7 +127,8 @@ def new_stocktake():
 	while yes_no("Moechten Sie den Warenbestand eines Produktes eingeben?") is True:
 		new_stocktake_detail(stocktake)
 	
-	extra_pfand(stocktake)
+	if yes_no("Ist zusaetzliches Leergut auch vorhanden?") is True:
+		add_pfand(stocktake)
 
 def take_stock():
 	if yes_no("Neue Bestandsaufnahme eingeben?"):

@@ -18,6 +18,50 @@ session = Session()
 
 from initialize_db import Product
 
+def add_pfand(stocktake):
+		# TODO: I'm creating entries with NULL values, how will I deal with that later on?
+		while True:
+			try:
+				pfandcrates = float(raw_input("Wie viele Kasten?		"))
+				session.add(
+					StockTakeDetail(
+						stockTakeID = stocktake.stockTakeID,
+						artNum = 10000,
+						pfandCrates = pfandcrates
+					)
+				)
+				break
+			except:
+				print "Bitte nur Ziffern eingeben!"
+		
+		while True:
+			try:
+				bottles008 = int(raw_input("Wie viele 0.08 Flaschen:	"))
+				session.add(
+					StockTakeDetail(
+						stockTakeID = stocktake.stockTakeID,
+						artNum = 10001,
+						pfandBottles008 = bottles008
+					)
+				)
+				break
+			except:
+				print "Bitte nur Ziffern eingeben!"
+		
+		while True:
+			try:
+				bottles015 = int(raw_input("Wie viele 0.15 Flaschen:	"))
+				session.add(
+					StockTakeDetail(
+						stockTakeID = stocktake.stockTakeID,
+						artNum = 10002,
+						pfandBottles015 = bottles015
+					)
+				)
+				break
+			except:
+				print "Bitte nur Ziffern eingeben!"
+
 def check_exists(input):
 	for instance in session.query(Product.artNum):
 		if instance.artNum == input:
