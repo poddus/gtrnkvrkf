@@ -57,7 +57,7 @@ def check_available(inputArtNum, inventory):
 def sale():
 	lastStockTake = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first()
 	
-	order = []
+	order = {}
 	while yes_no("Neues Product eingeben?") is True:
 		clear_screen()
 		inventory = get_current_inventory(lastStockTake)
@@ -71,6 +71,8 @@ def sale():
 			except:
 				print "Bitte nur Ziffern eingeben!"
 		
+		# TODO: if article exists in order, edit existing entry
+		
 		if check_available(inputArtNum, inventory) is False:
 			print "Produkt nicht vorhanden!"
 			raw_input()
@@ -79,6 +81,8 @@ def sale():
 		else:
 			pass
 		
+		# select quantities of product
+		# TODO: Pfand!
 		totalQuantity = 0
 		while True:
 			try:
@@ -101,16 +105,21 @@ def sale():
 				print "Bitte nur ganze Zahlen eingeben!"
 		
 		
-		order.append([inputArtNum, unitQuantity, bottleQuantity, totalQuantity * inventory[inputArtNum][1]])
+		order[inputArtNum] = [unitQuantity, bottleQuantity, totalQuantity * inventory[inputArtNum][1]]
+		
+		total = 0
+		for i in order:
+			total += order[i][2]
+		
+		# convert dict to tabulate-able table and print
+		table = []
+		for key in order:
+			table.append([key, order[key][0], order[key][1], order[key][2]])
 		
 		clear_screen()
 		print "Vorgang:"
 		print
-		print tabulate(order, headers=["Artikel#", "Einheiten", "+Flaschen", "Zwischensumme"])
-		
-		total = 0
-		for i in order:
-			total += i[3]
+		print tabulate(table, headers=["Artikel#", "Einheiten", "+Flaschen", "Zwischensumme"])
 		
 		print
 		print "Insgesamt: ", total

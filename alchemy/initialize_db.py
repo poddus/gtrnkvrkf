@@ -94,6 +94,8 @@ class StockTake(Base):
 		for instances in details:
 			total += details.get_unit_price()
 		
+		# TODO: also take Pfand into account
+		
 		return total
 
 class StockTakeDetail(Base):
