@@ -7,10 +7,11 @@ from sale import sale
 def what_do():	
 	table = []
 	table.append([0, "Programm schliessen"])
-	table.append([1, "Verkauf"],)
-	table.append([2, "Neue Lieferung / Inventar Pruefen"],)
-	table.append([3, "Sortiment bearbeiten"],)
-	table.append([4, "Hilfe"])
+	table.append([1, "Verkauf"])
+	table.append([2, "Neue Lieferung / Inventar Pruefen"])
+	table.append([3, "Sortiment bearbeiten"])
+	table.append([4, "Aktuelles Inventar"])
+	table.append([5, "Hilfe"])
 	
 	while True:
 		clear_screen()
@@ -37,8 +38,13 @@ def what_do():
 			clear_screen()
 			write_products()
 		elif choice == 4:
+			# TODO: aktuelles inventar
+			print "not implemented"
+			raw_input()
+		elif choice == 5:
 			# link help.py
 			print "not implemented"
+			raw_input()
 		else:
 			print "ungueltige Auswahl!"
 			raw_input()
