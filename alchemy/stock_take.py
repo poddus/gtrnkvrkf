@@ -98,6 +98,7 @@ def new_stocktake_detail(stocktake):
 					quantity = writeBuffer.pop(0),
 					unitCost = writeBuffer.pop(0),
 					bottleSurcharge = writeBuffer.pop(0),
+					# TODO: change this, store pfand in the articles in db, not in each entry
 					pfandCrates = pfandcrates,
 					pfandBottles = pfandbottles
 				)
@@ -128,6 +129,7 @@ def new_stocktake():
 		new_stocktake_detail(stocktake)
 	
 	if yes_no("Ist zusaetzliches Leergut auch vorhanden?") is True:
+		# TODO, not implemented
 		add_pfand(stocktake)
 
 def take_stock():

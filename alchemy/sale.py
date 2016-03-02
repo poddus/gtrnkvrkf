@@ -1,43 +1,49 @@
 from config import *
-from initialize_db import Product, Order, StockTake
+from initialize_db import Product, Order, OrderDetail, StockTake, crate, bottle008, bottle015
 from sqlalchemy import select
 
 from time import time
+import pdb
+
 
 def get_current_inventory(lastStockTake):
 	inventory = {}
 	
 	if lastStockTake is not None:
 		if lastStockTake.stocktakedetail is not None:
-			for instance in lastStockTake.stocktakedetail:
-				inventory[instance.artNum] = [
-					instance.product.name,
-					instance.quantity,
+			for product in lastStockTake.stocktakedetail:
+				inventory[product.artNum] = [
+					product.product.name,
+					product.quantity,
 					None,    # placeholder for unit quantity
-					instance.product.bottlesPerUnit,    # placeholder for bottle quantity
-					instance.get_unit_price(),
-					instance.get_bottle_price()
+					product.product.bottlesPerUnit,    # placeholder for bottle quantity
+					product.get_unit_price(),
+					product.get_bottle_price()
 				]
-	
+
 		if lastStockTake.order is not None:
-			for instance in lastStockTake.order:
-				inventory[instance.artNum][1] -= instance.quantity
+			for order in lastStockTake.order:
+				for detail in order.orderdetail:
+					inventory[detail.artNum][1] -= detail.quantity
+		else:
+			print "no orders since last stock take"
+			raw_input()
 	
 	table = []
-	for key in inventory:
-		# insert amounts into placeholders in inventory
-		inventory[key][2] = inventory[key][1] // inventory[key][3]
-		inventory[key][3] = inventory[key][1] % inventory[key][3]
+	for product in inventory:
+		# insert unit & bottle quantities into placeholders in inventory
+		inventory[product][2] = inventory[product][1] // inventory[product][3]
+		inventory[product][3] = inventory[product][1] % inventory[product][3]
 		
 		# convert to tabulate-able table
 		table.append(
 			[
-				key,
-				inventory[key][0],
-				inventory[key][2],
-				inventory[key][3],
-				inventory[key][4],
-				inventory[key][5]
+				product,
+				inventory[product][0],
+				inventory[product][2],
+				inventory[product][3],
+				inventory[product][4],
+				inventory[product][5]
 			]
 		)
 	
@@ -45,24 +51,66 @@ def get_current_inventory(lastStockTake):
 	print
 	return inventory
 
-def check_available(inputArtNum, inventory):
+def check_availability(artNum, inventory):
 	try:
-		if inventory[inputArtNum][1] > 0:
+		if inventory[artNum][1] > 0:
 			return True
 		else:
-			print "Produkt nicht vorhanden!"
-			raw_input()
 			return False
 	except:
 		print "Artikel existiert nicht!"
 		raw_input()
 		return False
 
-def input_products(writeBuffer, total):
-	lastStockTake = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first()
+def select_quantity(currentProduct, inventory):
+	totalQuantity = 0    # in bottles
 	
+	while True:
+		try:
+			unitQuantity = int(raw_input("Anzahl der Liefereinheiten:	"))
+			if unitQuantity * currentProduct.bottlesPerUnit > inventory[currentProduct.artNum][1]:
+				print "Nicht genug vorhanden!"
+				continue
+			else:
+				totalQuantity += unitQuantity * currentProduct.bottlesPerUnit
+				pfandCrates = unitQuantity * currentProduct.cratesPerUnit
+				break
+		except:
+			print "bitte nur ganze Zahlen eingeben"
+	
+	while True:
+		try:
+			bottleQuantity = int(raw_input("Anzahl der Flaschen:	"))
+			if totalQuantity + bottleQuantity > inventory[currentProduct.artNum][1]:
+				print "Nicht genug vorhanden!"
+				continue
+			else:
+				totalQuantity += bottleQuantity
+				break
+		except:
+			print "bitte nur ganze Zahlen eingeben"
+	
+	return totalQuantity, totalQuantity, pfandCrates
+
+def determine_pfand(currentProduct):
+	if currentProduct.bottlePfand == 0.08:
+		return bottle008.artNum
+	elif currentProduct.bottlePfand == 0.15:
+		return bottle015.artNum
+
+def sale():
+	order = Order()
+	order.timestamp = time()
+	print "Notiz zu diesem Vorgang:"
+	order.note = raw_input("> ")
+	
+	session.add(order)
+	
+	lastStockTake = session.query(StockTake).order_by(StockTake.stockTakeID.desc()).first()
+	totalCost = 0
 	while yes_no("Neues Product eingeben?") is True:
 		clear_screen()
+		
 		inventory = get_current_inventory(lastStockTake)
 		
 		print "Waehlen Sie ein Produkt\n"
@@ -74,133 +122,45 @@ def input_products(writeBuffer, total):
 			except:
 				print "Bitte nur Ziffern eingeben!"
 		
-		# TODO: if article exists in writeBuffer, edit existing entry
-		
-		if check_available(inputArtNum, inventory) is False:
+		if check_availability(currentProduct.artNum, inventory) is False:
+			print "Produkt nicht vorhanden."
+			raw_input()
 			clear_screen()
-			continue
+			break
 		else:
 			pass
 		
-		# select quantities of product
-		# TODO: Pfand!
-		totalQuantity = 0
-		while True:
-			try:
-				unitQuantity = int(raw_input("Anzahl der Liefereinheiten:	"))
-				if unitQuantity * currentProduct.bottlesPerUnit > inventory[inputArtNum][1]:
-					print "Nicht genug vorhanden!"
-					continue
-				else:
-					totalQuantity += unitQuantity * currentProduct.bottlesPerUnit
-					break
-			except:
-				print "Bitte nur ganze Zahlen eingeben!"
+		productDetail = OrderDetail()
+		bottlePfandDetail = OrderDetail()
+		cratePfandDetail = OrderDetail()
 		
-		while True:
-			try:
-				bottleQuantity = int(raw_input("Anzahl der Flaschen:	"))
-				totalQuantity += bottleQuantity
-				break
-			except:
-				print "Bitte nur ganze Zahlen eingeben!"
+		productDetail.orderID = order.orderID
+		productDetail.artNum = currentProduct.artNum
 		
+		bottlePfandDetail.artNum = determine_pfand(currentProduct)
 		
-		writeBuffer[inputArtNum] = [unitQuantity, bottleQuantity, totalQuantity * inventory[inputArtNum][5]]
+		productDetail.quantity, bottlePfandDetail.quantity, cratePfandDetail.quantity = select_quantity(currentProduct, inventory)
 		
-		# total price, bottles * bottle_price
-		for i in writeBuffer:
-			total += writeBuffer[i][2]
+		session.add(productDetail)
+		session.add(bottlePfandDetail)
+		session.add(cratePfandDetail)
 		
-		# convert dict to tabulate-able table and print
+		totalCost += inventory[currentProduct.artNum][5] * productDetail.quantity
+		
+		# add Pfand cost (bottles and crates) to totalCost
+		totalCost += bottlePfandDetail.quantity * currentProduct.bottlePfand
+		totalCost += cratePfandDetail.quantity * currentProduct.cratesPerUnit * 1.5
+		
 		table = []
-		for key in writeBuffer:
-			table.append([key, writeBuffer[key][0], writeBuffer[key][1], writeBuffer[key][2]])
+		table.append(
+			[
+				inventory[currentProduct.artNum][0],
+				productDetail.quantity // currentProduct.bottlesPerUnit,
+				productDetail.quantity % currentProduct.bottlesPerUnit,
+				inventory[currentProduct.artNum][1] * inventory[currentProduct.artNum][5],
+			]
+		)
 		
-		clear_screen()
-		print "Vorgang:"
+		print tabulate(table, headers=["Name", "Einheiten", "Flaschen", "Zwischensumme"])
 		print
-		print tabulate(table, headers=["Artikel#", "Einheiten", "+Flaschen", "Zwischensumme"])
-		
-		print
-		print "Insgesamt: ", total
-		raw_input()
-		
-	return writeBuffer, total
-
-def sale():
-	
-	order = Order()
-	order.timestamp = time()
-	print "Notiz zu dieser Bestellung:"
-	order.note = raw_input("> ")
-	
-	session.add(order)
-	
-	writeBuffer, total = input_products(writeBuffer = {}, total = 0)
-	
-	# once user no longer wishes to input Products, ask to finalize order
-	if yes_no("Bestellung vollstaendig?") is False:
-		print "Vorgang abgebrochen!"
-		raw_input()
-		pass
-	else:
-		# calculate change, and write writeBuffer to database
-		print "Bargeld gegeben:"
-		moneyGiven = None
-		while moneyGiven == None:
-			try:
-				moneyGiven = float(raw_input("> "))
-			except ValueError:
-				print "Bitte nur Zahlen eingeben!"
-		
-		print "Rueckgeld:"
-		print moneyGiven - total
-		
-		for product in writeBuffer:
-			session.add(
-				order.orderdetail(
-					orderID = order.orderID,
-					artNum = product,
-					# TODO, placeholders:
-					quantity = 0,
-					pfandCrates = 0,
-					pfandBottles = 0,
-				)
-			)
-
-# show preisliste
-#	query database for last StockTake where quantity > 0
-#	print nice table of results (tabulate?)
-#
-# ask to add a new product to order
-# select article using artNum
-# 	? print info about article
-# 
-# select amount
-#	print subtotal
-#	? also total
-#
-# write selection to session
-# session.add(Order...)
-# 
-# repeat until order is complete
-# 
-# Pfand zurueck?
-# 	Anzahl der Kasten (float, because half-crates!)
-# 	Anzahl der 0.08 Flaschen
-# 	Anzahl der 0.15 Flaschen
-# Pfand mitnehmen? (Flaschen sind schon verrechnet, hier NUR KASTEN)
-# 
-# write net Pfand to order
-# 
-# print order, give choice:
-# 	acknowledge, continue to check out
-# 	request change, return to point 3, but retain order information
-# 		if changes are made, overwrite previous choice, else keep choices
-# 
-# check out
-# calculate change
-# 
-# write transaction to database, update inventory
-# return to beginning
+		print "Summe: ", totalCost

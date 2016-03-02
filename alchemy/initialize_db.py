@@ -63,8 +63,8 @@ class OrderDetail(Base):
 	orderID = Column(Integer, ForeignKey("tblOrder.orderID"))
 	artNum = Column(Integer, ForeignKey("tblProducts.artNum"))
 	quantity = Column(Integer)
-	pfandCrates = Column(Float)
-	pfandBottles = Column(Integer)
+# 	pfandCrates = Column(Float)
+# 	pfandBottles = Column(Integer)
 	
 	product = relationship("Product", back_populates="orderdetail")
 	
@@ -138,12 +138,12 @@ def init_check_exists(input):
 			return True
 	return False
 
-crates = Product(
+crate = Product(
 	artNum = 10000,
 	name = "Pfandkasten",
 	bottlesPerUnit = 0,
 	cratesPerUnit = 0,
-	bottlePfand = 0.08,
+	bottlePfand = 0,
 )
 
 bottle008 = Product(
@@ -162,8 +162,8 @@ bottle015 = Product(
 	bottlePfand = 0.15,
 )
 
-if init_check_exists(crates.artNum) is False:
-	session.add(crates)
+if init_check_exists(crate.artNum) is False:
+	session.add(crate)
 	session.commit()
 
 if init_check_exists(bottle008.artNum) is False:

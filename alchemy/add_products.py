@@ -81,7 +81,8 @@ def edit_existing(inputArtNum):
 		clear_screen()
 		pass
 
-def add_products():	
+def add_products():
+	# TODO: show table of products
 	while yes_no("Neues Product eingeben?") is True:
 		while True:
 			try:
